@@ -6,11 +6,11 @@ export default function Home() {
     <div >
       {/* Hero Section */}
       <section className="hero min-h-screen bg-base-200">
-        <div className="hero-content text-center">
+        <div className="hero-content text-center ">
           <div className="max-w-md">
             <h1 className="text-5xl font-bold">Find Your Perfect Freelance Match</h1>
             <p className="py-6">
-              Connect with top talent or find your next gig on FreelanceHub. We make it easy to collaborate, create, and
+              Connect with top talent or find your next gig on Hustlr.. We make it easy to collaborate, create, and
               succeed.
             </p>
             <button className="btn btn-primary">Get Started</button>
@@ -21,7 +21,7 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Why Choose FreelanceHub?</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">Why Choose Hustlr?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body items-center text-center">
@@ -123,7 +123,7 @@ export default function Home() {
           </div>
         </div>
         <div>
-          <p>Copyright © 2023 - All right reserved by FreelanceHub</p>
+          <p>Copyright © 2023 - All right reserved by Hustlr.pvt.ltd</p>
         </div>
       </footer>
 
