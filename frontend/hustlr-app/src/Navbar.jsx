@@ -19,18 +19,18 @@ const Navbar = () => {
         >
           {isMenuOpen ? <X /> : <Menu />}
         </label>
-        <a className="btn btn-ghost normal-case text-3xl">Hustlr.</a>
+        <Link to="/" className="btn btn-ghost normal-case text-3xl">Hustlr.</Link>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a>Find Work</a>
+            <Link to="/findwork">Find Work</Link>
           </li>
           <li>
-            <a>Find Talent</a>
+            <Link to="/findtalent">Find Talent</Link>
           </li>
           <li>
-            <a>Why Us</a>
+            <Link to="/whyus">Why Us</Link>
           </li>
         </ul>
       </div>
@@ -42,7 +42,7 @@ const Navbar = () => {
           <LogIn className="w-4 h-4 mr-1" />
           Login
         </button>
-        <dialog id="my_modal_3" className="modal">
+        <dialog id="my_modal_3" className="modal backdrop-blur">
           <div className="modal-box pt-10 pb-10 pl-15 pr-15 ">
             <form method="dialog">
               <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -51,7 +51,7 @@ const Navbar = () => {
             </form>
             <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-10 lg:px-8">
               <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-              <a className="btn btn-ghost normal-case text-4xl text-center ml-25">Hustlr.</a>
+                <a className="btn btn-ghost normal-case text-4xl text-center ml-25">Hustlr.</a>
                 <h2 className="mt-10 text-center text-xl normal-case">
                   Sign in to your account
                 </h2>
@@ -120,7 +120,7 @@ const Navbar = () => {
                 <p className="mt-10 text-center text-sm/6 text-gray-500">
                   Not a member?{" "}
                   <a
-                    href="#"
+                    href=""
                     className="font-semibold text-indigo-600 hover:text-indigo-500"
                   >
                     Signup now
@@ -130,10 +130,10 @@ const Navbar = () => {
             </div>
           </div>
         </dialog>
-        <a className="btn btn-primary">
+        <Link to="/signup" className="btn btn-primary">
           <User className="w-4 h-4 mr-2" />
           Sign Up
-        </a>
+        </Link>
       </div>
 
       {/* Sidebar */}
@@ -147,14 +147,13 @@ const Navbar = () => {
             <h2 className="text-xl font-bold">Menu</h2>
             <ul className="menu mt-2">
               <li>
-                {/* <a onClick={}>Find Work</a> */}
                 <Link to="/findwork">Find Work</Link>
               </li>
               <li>
-                <a onClick={toggleMenu}>Find Talent</a>
+                <Link to="/findtalent">Find Talent</Link>
               </li>
               <li>
-                <a onClick={toggleMenu}>Why Us</a>
+                <Link to="/whyus">Why Us</Link>
               </li>
             </ul>
           </div>
