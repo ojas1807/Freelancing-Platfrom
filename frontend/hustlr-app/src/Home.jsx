@@ -1,56 +1,66 @@
 import React from "react";
-import { Search, Briefcase, Users, Star, ArrowRight} from "lucide-react";
-import Spline from '@splinetool/react-spline';
-
+import { Search, Briefcase, Users, Star, ArrowRight } from "lucide-react"
 export default function Home() {
-
   return (
     <div >
-      
       {/* Hero Section */}
-      <section className="hero min-h-screen bg-base-200">
-        <div className="hero-content text-center ">
+      <section
+        className="hero min-h-screen bg-cover bg-center relative flex items-center justify-center text-white"
+        style={{ backgroundImage: "url('/images/Freelance Life 4.gif')" }}
+      >
+        <div className="hero-overlay bg-opacity-50 absolute inset-0"></div>
+
+        <div className="hero-content text-center relative z-10">
           <div className="max-w-md">
-            <h1 className="text-5xl font-bold">Find Your Perfect Freelance Match</h1>
+            <h1 className="text-5xl font-bold">
+              Find Your Perfect Freelance Match
+            </h1>
             <p className="py-6">
-              Connect with top talent or find your next gig on Hustlr.. We make it easy to collaborate, create, and
-              succeed.
+              Connect with top talent or find your next gig on Hustlr. We make
+              it easy to collaborate, create, and succeed.
             </p>
-            <button className="btn btn-primary">Get Started</button>
+            <Link to="/signup" className="btn btn-primary">
+              Get Started
+            </Link>
           </div>
         </div>
       </section>
-      <div className=" w-full">
-        <Spline scene="https://prod.spline.design/T3prcR79Su4mnaVr/scene.splinecode" />
-
-</div>
-
-
 
       {/* Features Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Why Choose Hustlr?</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Why Choose Hustlr?
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body items-center text-center">
                 <Search className="w-12 h-12 text-primary" />
                 <h3 className="card-title">Easy to Find Work</h3>
-                <p>Browse thousands of job listings tailored to your skills and interests.</p>
+                <p>
+                  Browse thousands of job listings tailored to your skills and
+                  interests.
+                </p>
               </div>
             </div>
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body items-center text-center">
                 <Users className="w-12 h-12 text-primary" />
                 <h3 className="card-title">Top-Tier Talent</h3>
-                <p>Access a global pool of skilled professionals for your projects.</p>
+                <p>
+                  Access a global pool of skilled professionals for your
+                  projects.
+                </p>
               </div>
             </div>
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body items-center text-center">
                 <Star className="w-12 h-12 text-primary" />
                 <h3 className="card-title">Secure Payments</h3>
-                <p>Our escrow system ensures fair and timely payments for all parties.</p>
+                <p>
+                  Our escrow system ensures fair and timely payments for all
+                  parties.
+                </p>
               </div>
             </div>
           </div>
@@ -60,12 +70,17 @@ export default function Home() {
       {/* CTA Section */}
       <section className="bg-primary text-primary-content py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Freelance Journey?</h2>
-          <p className="mb-8">Join thousands of freelancers and businesses already using FreelanceHub.</p>
-          <button className="btn btn-secondary">
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Start Your Freelance Journey?
+          </h2>
+          <p className="mb-8">
+            Join thousands of freelancers and businesses already using
+            FreelanceHub.
+          </p>
+          <Link to="/signup" className="btn btn-secondary">
             Create Your Account
             <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -74,7 +89,12 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {["Create an Account", "Post or Find a Job", "Collaborate", "Get Paid"].map((step, index) => (
+            {[
+              "Create an Account",
+              "Post or Find a Job",
+              "Collaborate",
+              "Get Paid",
+            ].map((step, index) => (
               <div key={index} className="flex flex-col items-center">
                 <div className="rounded-full bg-primary text-primary-content w-12 h-12 flex items-center justify-center text-xl font-bold mb-4">
                   {index + 1}
@@ -92,7 +112,6 @@ export default function Home() {
           <a className="link link-hover">About us</a>
           <a className="link link-hover">Contact</a>
           <a className="link link-hover">Jobs</a>
-          <a className="link link-hover">Press kit</a>
         </div>
         <div>
           <div className="grid grid-flow-col gap-4">
@@ -135,7 +154,6 @@ export default function Home() {
           <p>Copyright © 2023 - All right reserved by Hustlr.pvt.ltd</p>
         </div>
       </footer>
-
     </div>
-  )
+  );
 }
