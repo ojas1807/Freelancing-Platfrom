@@ -15,21 +15,25 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # ✅ Define dataset path
 DATA_PATH = os.path.join(os.getcwd(), "data", "freelancers_dataset_final_4.csv")
 
-# ✅ Function to load the dataset
+# ✅ Function to load the dataset (updated)
 def load_dataset(filepath):
     if not os.path.exists(filepath):
         logging.error(f"❌ Error: Dataset not found at {filepath}")
         return None
     try:
-        df = pd.read_csv(filepath)
-        df.columns = df.columns.str.strip()  # Clean column names
-        logging.info("✅ Dataset loaded successfully!")
+        # Use the correct delimiter for your CSV
+        df = pd.read_csv(filepath, delimiter='\t')  # 👈 Changed to tab delimiter
+        df.columns = df.columns.str.strip()
+        logging.info(f"✅ Dataset loaded successfully! Columns: {df.columns.tolist()}")
         return df
     except Exception as e:
         logging.error(f"❌ Error loading dataset: {e}")
         return None
 
 df = load_dataset(DATA_PATH)
+
+# ... (keep the rest of your routes unchanged) ...
+
 
 # ✅ Home Route
 @app.route('/')
@@ -68,6 +72,7 @@ def recommend_freelancers():
 # ✅ Job Recommendation Route
 @app.route('/recommend/jobs', methods=['GET'])
 def recommend_jobs():
+    print(request.args.get('freelancer_id')) 
     if df is None:
         return jsonify({"error": "Dataset failed to load"}), 500
 

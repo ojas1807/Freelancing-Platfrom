@@ -1,4 +1,4 @@
-Id	Name	   Country	Description	Profile Picture	Skills	Jobs Completed	Yrs of Experience	Rating	Price per Hr	Availability	LinkedIn Profile	Portfolio	Tools
+Id	Name	   Country	Description	Profile Picture	Skills	Jobs_Title	Yrs of Experience	Rating	Price per Hr	Availability	LinkedIn Profile	Portfolio	Tools
 1	Hiroshi Tanaka 1	Germany	Experienced Cloud Computing, AWS specialist.	https://randomuser.me/api/portraits/men/61.jpg	Web Development, JavaScript	190	16	3.8	136	Busy	https://linkedin.com/in/freelancer1	https://portfolio.com/freelancer1	Adobe Illustrator, Canva
 2	Rahul Mehta 2	Brazil	Experienced Web Development, JavaScript specialist.	https://randomuser.me/api/portraits/men/71.jpg	Cloud Computing, AWS	17	5	4.8	40	Part-time	https://linkedin.com/in/freelancer2	https://portfolio.com/freelancer2	React, Angular
 3	Rahul Mehta 3	South Africa	Experienced Web Development, JavaScript specialist.	https://randomuser.me/api/portraits/men/63.jpg	Web Development, JavaScript	103	8	3.5	79	Available	https://linkedin.com/in/freelancer3	https://portfolio.com/freelancer3	VS Code, PyCharm

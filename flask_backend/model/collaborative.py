@@ -12,7 +12,7 @@ def recommend_jobs_collaborative(freelancer_id, df):
         return []
 
     # Create a dummy ratings matrix (Freelancers × Jobs)
-    rating_matrix = df.pivot(index="Id", columns="Job_Title", values="Rating").fillna(0)
+    rating_matrix = df.pivot(index="Id", columns="Jobs_Title", values="Rating").fillna(0)
 
     # Compute similarity
     cosine_sim = cosine_similarity(rating_matrix)
