@@ -13,7 +13,7 @@ import Footer from './pages/Footer'
 import { AuthProvider } from './context/AuthContext'
 import Login from './pages/LoginModal'
 import ClientDashboard from './pages/ClientDashboard'
-import FreelancerDashboard from './pages/FreelancerDashboard'
+import FreelancerDashboard from './dashboards/FreelancerDashboard'
 
 function App() {
   return (
