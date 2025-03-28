@@ -1,11 +1,61 @@
 import { BriefcaseBusiness, User } from "lucide-react";
 import { useState } from "react";
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Signup() {
   const [selectedRole, setSelectedRole] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rePassword, setRePassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!selectedRole) {
+      setError("Please select a role (Freelancer or Client).");
+      return;
+    }
+
+    if (password !== rePassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    const userData = { name, email, password, role: selectedRole };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userRole", selectedRole); // Store user role for future reference
+        alert("Signup Successful!");
+        document.getElementById("my_modal_signup").close();
+        
+        // Redirect based on user role
+        if (selectedRole === "freelancer") {
+          navigate("/freelancer_level");
+        } else if (selectedRole === "client") {
+          navigate("/client_level");
+        }
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    }
+  };
+  
   return (
     <div>
       <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
@@ -31,7 +81,7 @@ export default function Signup() {
           We will curate the experience accordingly specially for you !!
         </p>
         <div className="mx-auto mt-16 grid max-w-lg grid-rows-1 items-center justify-items-center gap-y-0 sm:mt-20 sm:gap-y-4 lg:max-w-4xl lg:grid-cols-2 ">
-          <div className="card bg-base-100 w-96 shadow-sm">
+          <div className={`card bg-base-100 w-96 shadow-sm ${selectedRole === "freelancer" ? "border-2 border-indigo-500" : ""}`}>
             <div className="card-body">
               <div className="card-actions justify-start">
                 <User className="w-6 h-6 mr-2 " />
@@ -47,7 +97,7 @@ export default function Signup() {
               </p>
             </div>
           </div>
-          <div className="card bg-base-100 w-96 shadow-sm">
+          <div className={`card bg-base-100 w-96 shadow-sm ${selectedRole === "client" ? "border-2 border-indigo-500" : ""}`}>
             <div className="card-body">
               <div className="card-actions justify-start">
                 <BriefcaseBusiness className="w-6 h-6 mr-2" />
@@ -85,8 +135,11 @@ export default function Signup() {
                   Create your account
                 </h2>
               </div>
+
+              {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+
               <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
-                <form action="#" method="POST" className="space-y-6">
+                <form onSubmit={handleSignup} className="space-y-6">
                   <div>
                     <label
                       htmlFor="first_name"
@@ -96,33 +149,15 @@ export default function Signup() {
                     </label>
                     <div className="mt-2">
                       <input
-                        id="first_name"
-                        name="first_name"
                         type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         required
-                        // autoComplete="first_name"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="last_name"
-                      className="block text-sm/6 font-medium text-gray-900"
-                    >
-                      Last Name
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        id="last_name"
-                        name="last_name"
-                        type="text"
-                        required
-                        // autoComplete="last_name"
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                      />
-                    </div>
-                  </div>
+        
                   <div>
                     <label
                       htmlFor="email"
@@ -132,11 +167,10 @@ export default function Signup() {
                     </label>
                     <div className="mt-2">
                       <input
-                        id="email"
-                        name="email"
-                        type="email"
+                         type="email"
+                         value={email}
+                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        // autoComplete="email"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
                     </div>
@@ -152,11 +186,10 @@ export default function Signup() {
                     </div>
                     <div className="mt-2">
                       <input
-                        id="password"
-                        name="password"
-                        type="password"
+                         type="password"
+                         value={password}
+                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        // autoComplete="current-password"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
                     </div>
@@ -172,9 +205,9 @@ export default function Signup() {
                     </div>
                     <div className="mt-2">
                       <input
-                        id="re-password"
-                        name="re-password"
-                        type="re-password"
+                        type="password"
+                        value={rePassword}
+                        onChange={(e) => setRePassword(e.target.value)}
                         required
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
