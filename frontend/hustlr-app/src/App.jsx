@@ -13,7 +13,9 @@ import Footer from './pages/Footer'
 import { AuthProvider } from './context/AuthContext'
 import Login from './pages/LoginModal'
 import ClientDashboard from './pages/ClientDashboard'
-import FreelancerDashboard from './pages/FreelancerDashboard'
+import FreelancerDashboard from './dashboards/FreelancerDashboard'
+import ClientProgress from './pages/ClientProgress'
+import Dashboard from './dashboards/Dashboard'
 
 function App() {
   return (
@@ -25,12 +27,14 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/client_dashboard' element={<ClientDashboard/>} />
           <Route path='/freelancer_dashboard' element={<FreelancerDashboard/>} />
+          <Route path='/dashboard' element={<Dashboard/>} />
           <Route path='/signup' element={<Signup/>} />
           <Route path='/login_page' element={<Login/>} />
           <Route path='/findwork' element={<Home />} />
           <Route path='/freelancer_level' element={<FreelancerProfileBuilder />} />
           <Route path='/freelancer_profile' element={<FreelancerProfile />} />
           <Route path='/client_level' element={<ClientProfileBuilder />} />
+          <Route path='/client_progress' element={<ClientProgress />} />
         </Routes>
       </div>
       <Footer />
