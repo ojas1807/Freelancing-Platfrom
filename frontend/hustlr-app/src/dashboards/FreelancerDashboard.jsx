@@ -128,7 +128,7 @@ const FreelancerDashboard = () => {
     return (
       <div className="grid grid-cols-1 gap-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
+        <div className="bg-gradient-to-r from-[#422AD5] to-indigo-700 rounded-xl p-6 text-white shadow-lg">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">{greeting}, Ojas !</h2>
@@ -228,7 +228,7 @@ const FreelancerDashboard = () => {
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-20"
-        } fixed md:relative z-20 h-full transition-all duration-300 ease-in-out bg-gradient-to-b from-blue-800 to-indigo-900 text-white ${
+        } fixed md:relative z-20 h-full transition-all duration-300 ease-in-out bg-gradient-to-b from-[#422AD5] to-indigo-900 text-white ${
           sidebarOpen ? "w-64" : "w-0 md:w-20"
         } overflow-hidden shadow-xl`}
       >
@@ -273,17 +273,6 @@ const FreelancerDashboard = () => {
             </li>
           ))}
         </ul>
-
-        {/* Pro Badge */}
-        {sidebarOpen && (
-          <div className="absolute bottom-8 left-4 right-4">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg p-3 shadow-lg">
-              <p className="text-sm font-medium">Upgrade to Pro</p>
-              <p className="text-xs text-blue-100 mt-1">Get advanced features</p>
-              <button className="mt-2 text-xs bg-white text-blue-800 px-3 py-1 rounded-md font-medium">Upgrade</button>
-            </div>
-          </div>
-        )}
       </aside>
 
       {/* Main Content */}
@@ -306,7 +295,7 @@ const FreelancerDashboard = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="bg-gray-100 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 lg:w-64"
+                className="bg-gray-100 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] w-48 lg:w-64"
               />
               <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
             </div>
@@ -314,8 +303,8 @@ const FreelancerDashboard = () => {
               <Bell size={20} className="text-gray-600" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <User size={16} className="text-blue-600" />
+            <div className="w-8 h-8 rounded-full bg-[#422AD5]/10 flex items-center justify-center">
+              <User size={16} className="text-[#422AD5]" />
             </div>
           </div>
         </div>

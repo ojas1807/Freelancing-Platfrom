@@ -40,7 +40,7 @@ function App() {
       <Footer />
     </AuthProvider>
     </>
-  );
+  )
 }
 
-export default App;
+export default App

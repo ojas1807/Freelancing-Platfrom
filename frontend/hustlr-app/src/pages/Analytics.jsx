@@ -1,5 +1,5 @@
-import AnalyticsChart from "../dashboards/AnalyticsChart";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import AnalyticsChart from "../dashboards/AnalyticsChart"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 
 const Analytics = () => {
   const charts = [
@@ -11,7 +11,7 @@ const Analytics = () => {
           {
             label: "Clients",
             data: [40, 60],
-            backgroundColor: ["#36A2EB", "#FF6384"],
+            backgroundColor: ["#422AD5", "#FF6384"],
           },
         ],
       },
@@ -25,7 +25,7 @@ const Analytics = () => {
           {
             label: "Projects",
             data: [10, 25, 5],
-            backgroundColor: ["#4BC0C0", "#FFCE56", "#FF6384"],
+            backgroundColor: ["#422AD5", "#FFCE56", "#FF6384"],
           },
         ],
       },
@@ -39,7 +39,7 @@ const Analytics = () => {
           {
             label: "Hours Worked",
             data: [6, 2],
-            backgroundColor: ["#36A2EB", "#FF6384"],
+            backgroundColor: ["#422AD5", "#FF6384"],
           },
         ],
       },
@@ -53,25 +53,28 @@ const Analytics = () => {
           {
             label: "Skill Growth",
             data: [70, 20, 10],
-            backgroundColor: ["#FF6384", "#4BC0C0", "#FFCE56"],
-            borderColor: "#FF6384",
+            backgroundColor: ["#422AD5", "#4BC0C0", "#FFCE56"],
+            borderColor: "#422AD5",
             fill: false,
           },
         ],
       },
       type: "line",
     },
-  ];
+  ]
 
   return (
-    <div className="min-h-screen p-6 bg-[#1F3BB3] text-white">
+    <div className="min-h-screen p-6 bg-[#422AD5] text-white">
       {/* Header */}
       <h1 className="text-3xl font-bold mb-6 text-center">Analytics Dashboard</h1>
 
       {/* Info Cards - First Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {["Monthly Salary", "Time Tracking", "Client Relationship"].map((title, index) => (
-          <Card key={index} className="bg-gradient-to-r from-[#36D1DC] to-[#5B86E5] text-white border-none shadow-lg p-4 rounded-lg">
+          <Card
+            key={index}
+            className="bg-gradient-to-r from-[#422AD5] to-[#5B86E5] text-white border-none shadow-lg p-4 rounded-lg"
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-white text-lg font-medium">{title}</CardTitle>
             </CardHeader>
@@ -89,7 +92,10 @@ const Analytics = () => {
       {/* Info Cards - Second Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {["Goal Setting", "Invoice & Payment", "Skills & Certifications"].map((title, index) => (
-          <Card key={index} className="bg-gradient-to-r from-[#36D1DC] to-[#5B86E5] text-white border-none shadow-lg p-4 rounded-lg">
+          <Card
+            key={index}
+            className="bg-gradient-to-r from-[#422AD5] to-[#5B86E5] text-white border-none shadow-lg p-4 rounded-lg"
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-white text-lg font-medium">{title}</CardTitle>
             </CardHeader>
@@ -118,7 +124,8 @@ const Analytics = () => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Analytics;
+export default Analytics
+
