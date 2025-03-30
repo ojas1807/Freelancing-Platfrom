@@ -16,10 +16,10 @@ const userSchema = new mongoose.Schema(
 
 export default mongoose.model("User", userSchema);
 
-// const mongoose = require('mongoose');
-// const bcrypt = require('bcryptjs');
+// import { Schema, model } from 'mongoose';
+// import { genSalt, hash, compare } from 'bcryptjs';
 
-// const UserSchema = new mongoose.Schema({
+// const UserSchema = new Schema({
 //   name: {
 //     type: String,
 //     required: true
@@ -59,8 +59,8 @@ export default mongoose.model("User", userSchema);
 //   if (!this.isModified('password')) return next();
   
 //   try {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
+//     const salt = await genSalt(10);
+//     this.password = await hash(this.password, salt);
 //     next();
 //   } catch (err) {
 //     next(err);
@@ -69,7 +69,7 @@ export default mongoose.model("User", userSchema);
 
 // // Compare password method
 // UserSchema.methods.comparePassword = async function(candidatePassword) {
-//   return await bcrypt.compare(candidatePassword, this.password);
+//   return await compare(candidatePassword, this.password);
 // };
 
-// module.exports = mongoose.model('User', UserSchema);
+// export default model('User', UserSchema);

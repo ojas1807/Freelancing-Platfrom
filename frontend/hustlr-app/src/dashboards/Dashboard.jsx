@@ -11,6 +11,7 @@ import {
     DollarSign,
     CheckCircle,
   } from "lucide-react"
+import { Link } from "react-router-dom"
   
   function Dashboard() {
     return (
@@ -29,13 +30,13 @@ import {
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
               <li>
-                <a href="#" className="flex items-center gap-3 p-3 bg-white/20 rounded-md">
+                <Link to="/dashboard" className="flex items-center gap-3 p-3 bg-white/20 rounded-md">
                   <Home size={20} />
                   <span>Dashboard</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center gap-3 p-3 hover:bg-white/10 rounded-md">
+                <a href="/signup" className="flex items-center gap-3 p-3 hover:bg-white/10 rounded-md">
                   <Briefcase size={20} />
                   <span>Projects</span>
                 </a>

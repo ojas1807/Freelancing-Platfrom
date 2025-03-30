@@ -12,7 +12,7 @@ const Navbar = () => {
   
 
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-base-100 border border-b-gray-300">
       <div className="navbar-start">
         <label tabIndex={0} className="btn btn-ghost lg:hidden" onClick={toggleMenu}>
           {isMenuOpen ? <X /> : <Menu />}

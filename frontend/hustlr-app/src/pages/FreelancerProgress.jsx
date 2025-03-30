@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io";
 
-const socket = io("http://localhost:5000");
+// const socket = io("http://localhost:5000");
 
 const FreelancerProgress = () => {
     const [jobs, setJobs] = useState([]);
@@ -17,23 +17,23 @@ const FreelancerProgress = () => {
 
         fetchJobs();
 
-        // Listen for real-time updates
-        socket.on("progressUpdated", (update) => {
-            setJobs((prevJobs) =>
-                prevJobs.map((job) =>
-                    job._id === update.jobId
-                        ? {
-                              ...job,
-                              milestones: job.milestones.map((m) =>
-                                  m._id === update.milestoneId ? { ...m, status: update.status } : m
-                              ),
-                          }
-                        : job
-                )
-            );
-        });
+        // // Listen for real-time updates
+        // socket.on("progressUpdated", (update) => {
+        //     setJobs((prevJobs) =>
+        //         prevJobs.map((job) =>
+        //             job._id === update.jobId
+        //                 ? {
+        //                       ...job,
+        //                       milestones: job.milestones.map((m) =>
+        //                           m._id === update.milestoneId ? { ...m, status: update.status } : m
+        //                       ),
+        //                   }
+        //                 : job
+        //         )
+        //     );
+        // });
 
-        return () => socket.off("progressUpdated");
+        // return () => socket.off("progressUpdated");
     }, []);
 
     return (

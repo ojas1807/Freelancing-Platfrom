@@ -1,11 +1,11 @@
-const Profile = require('../models/Profile');
-const User = require('../models/User');
-const { validationResult } = require('express-validator');
+import Profile, { findOne, findOneAndUpdate } from '../models/Profile';
+import User from '../models/User';
+import { validationResult } from 'express-validator';
 
 // Get current user profile
-exports.getMyProfile = async (req, res) => {
+export async function getMyProfile(req, res) {
   try {
-    const profile = await Profile.findOne({ user: req.user.id }).populate('user', ['name', 'email', 'avatar', 'role']);
+    const profile = await findOne({ user: req.user.id }).populate('user', ['name', 'email', 'avatar', 'role']);
     
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
@@ -16,10 +16,10 @@ exports.getMyProfile = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}
 
 // Create or update profile
-exports.createUpdateProfile = async (req, res) => {
+export async function createUpdateProfile(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -67,11 +67,11 @@ exports.createUpdateProfile = async (req, res) => {
   
   try {
     // Find profile
-    let profile = await Profile.findOne({ user: req.user.id });
+    let profile = await findOne({ user: req.user.id });
     
     if (profile) {
       // Update profile
-      profile = await Profile.findOneAndUpdate(
+      profile = await findOneAndUpdate(
         { user: req.user.id },
         { $set: profileFields },
         { new: true }
@@ -89,10 +89,10 @@ exports.createUpdateProfile = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}
 
 // Update freelancer experience
-exports.addExperience = async (req, res) => {
+export async function addExperience(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -123,7 +123,7 @@ exports.addExperience = async (req, res) => {
   };
   
   try {
-    const profile = await Profile.findOne({ user: req.user.id });
+    const profile = await findOne({ user: req.user.id });
     
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
@@ -137,10 +137,10 @@ exports.addExperience = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}
 
 // Update freelancer education
-exports.addEducation = async (req, res) => {
+export async function addEducation(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -171,7 +171,7 @@ exports.addEducation = async (req, res) => {
   };
   
   try {
-    const profile = await Profile.findOne({ user: req.user.id });
+    const profile = await findOne({ user: req.user.id });
     
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
@@ -185,10 +185,10 @@ exports.addEducation = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}
 
 // Add portfolio item
-exports.addPortfolio = async (req, res) => {
+export async function addPortfolio(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -213,7 +213,7 @@ exports.addPortfolio = async (req, res) => {
   };
   
   try {
-    const profile = await Profile.findOne({ user: req.user.id });
+    const profile = await findOne({ user: req.user.id });
     
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
@@ -227,4 +227,4 @@ exports.addPortfolio = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}
