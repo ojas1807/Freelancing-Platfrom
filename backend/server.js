@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
+import freelancerRoutes from "./routes/freelancerRoutes.js";
 
 dotenv.config();
 // Initialize app
@@ -25,6 +26,8 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/client-profile", clientRoutes); 
+app.use("/api/freelancer-profile", freelancerRoutes);
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
