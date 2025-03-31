@@ -1,26 +1,51 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import User from "../models/User.js"; // Import your User model
 
-const authMiddleware = (req, res, next) => {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: 'Not authorized' });
+export const protect = async (req, res, next) => {
+  // 1. Get token from header
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+  // 2. Verify token exists
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Not authorized to access this route"
+    });
+  }
+
+  try {
+    // 3. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // 4. Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return res.status(401).json({
+        success: false,
+        message: "The user belonging to this token no longer exists"
+      });
     }
-};
 
-// Middleware to restrict access based on role
-export const roleMiddleware = (roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-        next();
+    // 5. Attach user to request
+    req.user = {
+      _id: currentUser._id,
+      email: currentUser.email,
+      role: currentUser.role
+      // Add other needed user fields
     };
+    
+    next();
+  } catch (err) {
+    console.error("Authentication error:", err);
+    return res.status(401).json({
+      success: false,
+      message: "Not authorized to access this route"
+    });
+  }
 };
-
-export default authMiddleware;

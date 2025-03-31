@@ -1,153 +1,160 @@
-import { Building, Briefcase, ScanSearch, Target, PlusCircle, X, DollarSign } from "lucide-react";
-import React, { useState } from "react";
-
-function ClientProfileBuilder() {
-  // States for all form steps
+ // Custom hook to get user data
+ import { useEffect, useState } from "react";
+ import { useNavigate } from "react-router-dom";
+ import useAuth from "../../hooks/useAuth"; // Custom hook to get user data
+ import {
+   createClientProfile,
+   getClientProfile,
+ } from "../../services/clientProfileServices.jsx";
+ import {
+   Building,
+   Briefcase,
+   ScanSearch,
+   Target,
+   PlusCircle,
+   X,
+   DollarSign,
+ } from "lucide-react";
+ 
+ function ClientProfileBuilder() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const token = localStorage.getItem("token");
+  console.log("I got the token",token)
   const [currentStep, setCurrentStep] = useState(1);
-  const [clientType, setClientType] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  
+
+  // Profile fields
+  const [clientType, setClientType] = useState("individual");
   const [companyInfo, setCompanyInfo] = useState({
     name: "",
     website: "",
     size: "",
     industry: "",
-    description: ""
+    description: "",
   });
   const [hiringSummary, setHiringSummary] = useState("");
   const [hiringScopeInfo, setHiringScopeInfo] = useState({
     projectType: "",
     duration: "",
     expertise: "",
-    teamSize: ""
+    teamSize: "",
   });
   const [budget, setBudget] = useState({
     range: "",
     paymentType: "",
-    workHours: ""
+    workHours: "",
   });
   const [preferredSkills, setPreferredSkills] = useState([]);
   const [inputSkill, setInputSkill] = useState("");
-  
-  // Progress tracking
-  const totalSteps = 5;
-  
-  // Method to handle next step navigation
-  const handleNextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
-  };
 
-  // Method to handle previous step navigation
-  const handlePrevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
+  // 🟢 Fetch Profile Data
+  useEffect(() => {
+    if (!user?.id || !token) return;
+    getClientProfile(token, user.id)
+      .then((profile) => {
+        if (profile) {
+          setClientType(profile.clientType);
+          setCompanyInfo(profile.companyInfo || {});
+          setHiringSummary(profile.hiringSummary);
+          setHiringScopeInfo(profile.hiringScopeInfo || {});
+          setBudget(profile.budget || {});
+          setPreferredSkills(profile.preferredSkills || []);
+        }
+      })
+      .catch((err) => console.error("Error fetching profile:", err.message));
+  }, [user, token]);
 
-  // Method to add skills
-  const handleAddSkill = () => {
-    if (inputSkill && preferredSkills.length < 15 && !preferredSkills.includes(inputSkill)) {
-      setPreferredSkills(prev => [...prev, inputSkill]);
-      setInputSkill("");
+  // 🟢 Handle Profile Submission
+  const handleSubmit = async (e) => {
+    
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError('Please login first');
+      return;
+    }
+  
+    console.log('Current token:', token); // Debug log
+  
+  
+
+    const profileData = {
+      clientType,
+      companyInfo,
+      hiringSummary,
+      hiringScopeInfo,
+      budget,
+      preferredSkills,
+      userId: user?.id, // Ensure it's defined
+    };
+    console.log("Submitting Profile Data:", profileData);
+
+    try {
+      await createClientProfile(token,profileData);
+      alert("Profile Created Successfully!");
+      navigate("/client_dashboard");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Method to remove a skill
+  // 🟢 Form Navigation
+  const totalSteps = 5;
+  const handleNextStep = () => setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
+  const handlePrevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+
+  // 🟢 Skill Management
+  const handleAddSkill = () => {
+    const formattedSkill = inputSkill.trim().toLowerCase();
+    if (
+      formattedSkill &&
+      preferredSkills.length < 15 &&
+      !preferredSkills.map((s) => s.toLowerCase()).includes(formattedSkill)
+    ) {
+      setPreferredSkills((prev) => [...prev, formattedSkill]);
+      setInputSkill("");
+    }
+  };
   const handleRemoveSkill = (skillToRemove) => {
-    setPreferredSkills(prev => prev.filter(skill => skill !== skillToRemove));
+    setPreferredSkills((prev) => prev.filter((skill) => skill !== skillToRemove));
   };
-
-  // Helper function to get suggested skills based on the industry
-  const getSuggestedSkills = () => {
-    const suggestions = {
-      "Technology & Software": [
-        "Web Development", 
-        "Mobile Development",
-        "DevOps",
-        "Cloud Services", 
-        "AI/Machine Learning", 
-        "UI/UX Design"
-      ],
-      "Marketing & Creative": [
-        "Content Marketing", 
-        "Social Media", 
-        "Graphic Design", 
-        "SEO/SEM", 
-        "Video Production"
-      ],
-      "Finance & Accounting": [
-        "Bookkeeping", 
-        "Financial Analysis", 
-        "Tax Preparation", 
-        "Financial Consulting"
-      ],
-      "E-commerce": [
-        "Shopify", 
-        "WooCommerce", 
-        "Marketplace Management", 
-        "Product Sourcing"
-      ],
-      "Healthcare": [
-        "Medical Writing", 
-        "Health Informatics", 
-        "Telemedicine", 
-        "Health Research"
-      ]
-    };
-    
-    return suggestions[companyInfo.industry] || ["Web Development", "Content Writing", "Graphic Design"];
-  };
-
-  // Project type options based on industry
-  const getProjectTypes = () => {
-    const projectTypes = {
-      "Technology & Software": [
-        "Web Application",
-        "Mobile App Development",
-        "Software Integration",
-        "Bug Fixing",
-        "System Architecture",
-        "DevOps & CI/CD"
-      ],
-      "Marketing & Creative": [
-        "Brand Identity",
-        "Marketing Campaign",
-        "Social Media Management",
-        "Content Creation",
-        "SEO Optimization"
-      ],
-      "Finance & Accounting": [
-        "Financial Reporting",
-        "Tax Preparation",
-        "Bookkeeping",
-        "Financial Consulting",
-        "Audit Support"
-      ],
-      "E-commerce": [
-        "Online Store Setup",
-        "Product Catalog",
-        "Payment Integration",
-        "Marketplace Management",
-        "Inventory System"
-      ],
-      "Healthcare": [
-        "Medical Content",
-        "Health Application",
-        "Patient Management System",
-        "Medical Research",
-        "Healthcare Analytics"
-      ]
-    };
-    
-    return projectTypes[companyInfo.industry] || [
-      "Web Development", 
-      "Mobile App", 
-      "Design Work",
-      "Content Creation",
-      "Consulting",
-      "Research"
-    ];
-  };
+ 
+   // Suggested skills based on industry
+   const getSuggestedSkills = () => {
+     const suggestions = {
+       "Technology & Software": ["Web Development", "Mobile Development", "DevOps", "Cloud Services", "AI/Machine Learning", "UI/UX Design"],
+       "Marketing & Creative": ["Content Marketing", "Social Media", "Graphic Design", "SEO/SEM", "Video Production"],
+       "Finance & Accounting": ["Bookkeeping", "Financial Analysis", "Tax Preparation", "Financial Consulting"],
+       "E-commerce": ["Shopify", "WooCommerce", "Marketplace Management", "Product Sourcing"],
+       "Healthcare": ["Medical Writing", "Health Informatics", "Telemedicine", "Health Research"],
+     };
+     return suggestions[companyInfo.industry] || ["Web Development", "Content Writing", "Graphic Design"];
+   };
+ 
+   // Project types based on industry
+   const getProjectTypes = () => {
+     const projectTypes = {
+       "Technology & Software": ["Web Application", "Mobile App Development", "Software Integration", "Bug Fixing", "System Architecture", "DevOps & CI/CD"],
+       "Marketing & Creative": ["Brand Identity", "Marketing Campaign", "Social Media Management", "Content Creation", "SEO Optimization"],
+       "Finance & Accounting": ["Financial Reporting", "Tax Preparation", "Bookkeeping", "Financial Consulting", "Audit Support"],
+       "E-commerce": ["Online Store Setup", "Product Catalog", "Payment Integration", "Marketplace Management", "Inventory System"],
+       "Healthcare": ["Medical Content", "Health Application", "Patient Management System", "Medical Research", "Healthcare Analytics"],
+     };
+     return projectTypes[companyInfo.industry] || ["Web Development", "Mobile App", "Design Work", "Content Creation", "Consulting", "Research"];
+   };
+ 
 
   return (
     <div>
       <div className="relative isolate bg-white px-6 py-16 sm:py-24 lg:px-8">
+        {/* Background decoration */}
         <div
           aria-hidden="true"
           className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
@@ -160,6 +167,16 @@ function ClientProfileBuilder() {
             className="mx-auto aspect-1155/678 w-[72.1875rem] bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
           />
         </div>
+        
+        {/* Error message */}
+        {error && (
+          <div className="alert alert-error max-w-4xl mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
         
         {/* Progress indicator */}
         <div className="mx-auto max-w-4xl text-center">
@@ -585,6 +602,7 @@ function ClientProfileBuilder() {
             <button
               className="btn btn-outline"
               onClick={handlePrevStep}
+              disabled={isSubmitting}
             >
               Back
             </button>
@@ -596,15 +614,24 @@ function ClientProfileBuilder() {
             <button
               className="btn btn-primary"
               onClick={handleNextStep}
+              disabled={isSubmitting}
             >
               Next
             </button>
           ) : (
             <button
               className="btn btn-success"
-              onClick={() => alert("Client profile completed!")}
+              onClick={handleSubmit}
+              disabled={isSubmitting}
             >
-              Complete profile
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner"></span>
+                  Saving...
+                </>
+              ) : (
+                'Complete profile'
+              )}
             </button>
           )}
         </div>

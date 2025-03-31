@@ -1,16 +1,22 @@
-import { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import AuthContext from './AuthContext';
+import { Navigate, Outlet } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
-const ProtectedRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  
+const ProtectedRoute = ({ role }) => {
+  const { user } = useAuth();
+
+  if (user === null) {
+    return null; // Prevents flashing the login page
+  }
+
   if (!user) {
-    // Redirect to home if not authenticated
+    return <Navigate to="/login_page" replace />;
+  }
+
+  if (role && user.role !== role) {
     return <Navigate to="/" replace />;
   }
-  
-  return children;
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
