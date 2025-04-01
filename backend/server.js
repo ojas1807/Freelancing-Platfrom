@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import freelancerRoutes from "./routes/freelancerRoutes.js";
+import jobRoutes from './routes/jobRoutes.js';
+import talentRoutes from './routes/talentRoutes.js';
 
 dotenv.config();
 // Initialize app
@@ -27,6 +29,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/client-profile", clientRoutes); 
 app.use("/api/freelancer-profile", freelancerRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/talents', talentRoutes);
 
 
 // Start Server
