@@ -1,15 +1,46 @@
-import { useState } from "react";
-import { Menu, X, User, LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Menu, X, User, LogIn, LogOut, Briefcase, Search, Star } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check authentication status when component mounts or when location changes
+  useEffect(() => {
+    // Check for token in localStorage
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    
+    if (token && userData) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(userData));
+    } else {
+      setIsLoggedIn(false);
+      setUser(null);
+    }
+  }, [location]); // Re-run when location changes
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  
+  const handleLogout = () => {
+    // Clear authentication data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    
+    // Update state
+    setIsLoggedIn(false);
+    setUser(null);
+    
+    // Redirect to home page and refresh
+    navigate('/');
+    window.location.reload();
+  };
 
   return (
     <div className="navbar bg-base-100 border border-b-gray-300">
@@ -20,34 +51,102 @@ const Navbar = () => {
         <Link to="/" className="btn btn-ghost normal-case text-3xl">Hustlr.</Link>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          <li><Link to="/findwork">Find Work</Link></li>
-          <li><Link to="/findtalent">Find Talent</Link></li>
-          <li><Link to="/whyus">Why Us</Link></li>
+      <ul className="menu menu-horizontal px-1 gap-2">
+          <li>
+            <Link 
+              to="/findwork" 
+              className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <Briefcase className="w-4 h-4" />
+              <span className="font-medium">Find Work</span>
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/findtalent" 
+              className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              <span className="font-medium">Find Talent</span>
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/whyus" 
+              className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <Star className="w-4 h-4" />
+              <span className="font-medium">Why Us</span>
+            </Link>
+          </li>
         </ul>
       </div>
       <div className="navbar-end">
-        <Link className="btn btn-outline mr-1" to="/login_page">
-          <LogIn className="w-4 h-4 mr-1" />
-          Login
-        </Link>
+        {isLoggedIn ? (
+          <button className="btn btn-secondary" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-1" />
+            Logout
+          </button>
+        ) : (
+          <>
+            <Link className="btn btn-outline mr-1" to="/login_page">
+              <LogIn className="w-4 h-4 mr-1" />
+              Login
+            </Link>
 
-        <Link to="/signup" className="btn btn-primary">
-          <User className="w-4 h-4 mr-2" />
-          Sign Up
-        </Link>
+            <Link to="/signup" className="btn btn-primary">
+              <User className="w-4 h-4 mr-2" />
+              Sign Up
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Sidebar */}
       {isMenuOpen && (
         <>
-          <div className="fixed inset-0 bg-opacity-50 z-40" onClick={toggleMenu}></div>
-          <div className="fixed inset-y-0 left-0 bg-white h-full z-50 p-4">
-            <h2 className="text-xl font-bold">Menu</h2>
-            <ul className="menu mt-2">
-              <li><Link to="/findwork">Find Work</Link></li>
-              <li><Link to="/findtalent">Find Talent</Link></li>
-              <li><Link to="/whyus">Why Us</Link></li>
+          <div 
+            className="fixed inset-0 bg-transparent bg-opacity-50 z-40" 
+            onClick={toggleMenu}
+          ></div>
+          <div className="fixed inset-y-0 left-0 bg-white h-full z-50 p-4 w-64 shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-primary">Hustlr.</h2>
+              <button onClick={toggleMenu} className="btn btn-ghost btn-sm">
+                <X />
+              </button>
+            </div>
+            <ul className="menu gap-1">
+              <li>
+                <Link 
+                  to="/findwork" 
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                  onClick={toggleMenu}
+                >
+                  <Briefcase className="w-4 h-4" />
+                  Find Work
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/findtalent" 
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                  onClick={toggleMenu}
+                >
+                  <Search className="w-4 h-4" />
+                  Find Talent
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/whyus" 
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                  onClick={toggleMenu}
+                >
+                  <Star className="w-4 h-4" />
+                  Why Us
+                </Link>
+              </li>
             </ul>
           </div>
         </>

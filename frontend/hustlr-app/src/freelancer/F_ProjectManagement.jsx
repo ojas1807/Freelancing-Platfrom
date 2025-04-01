@@ -1,4 +1,3 @@
-"use client"
 
 import { useState } from "react"
 import { Briefcase, CheckCircle, Clock, Filter, Search, Star } from "lucide-react"
@@ -17,6 +16,7 @@ function FreelancerProjectManagement({
   const [activeTab, setActiveTab] = useState(initialTab)
   const [showApplicationDialog, setShowApplicationDialog] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
+  
 
   // Use the passed props with fallback to the default data
   const ongoing = ongoingProjects.length ? ongoingProjects : [

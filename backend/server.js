@@ -7,10 +7,15 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import freelancerRoutes from "./routes/freelancerRoutes.js";
+import { fileURLToPath } from "url";
+import projectRoutes from "./routes/projectRoutes.js";
+import path from "path";
 
 dotenv.config();
 // Initialize app
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(json());
@@ -27,7 +32,14 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/client-profile", clientRoutes); 
 app.use("/api/freelancer-profile", freelancerRoutes);
-
+app.use("/api/project", projectRoutes); // Project management routes
+// Static files - for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Create uploads directory if it doesn't exist
+import fs from "fs";
+if (!fs.existsSync('./uploads')) {
+  fs.mkdirSync('./uploads');
+}
 
 // Start Server
 const PORT = process.env.PORT || 5000;
