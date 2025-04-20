@@ -1,6 +1,88 @@
 const API_URL = 'http://localhost:5000/api/project';
 
 export const ProjectServices = {
+
+  // New method to get freelancer's projects
+  getFreelancerProjects: async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/freelancer/projects`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw await parseError(response);
+      
+      const result = await response.json();
+      
+      // Format the response to match frontend expectations
+      if (result.data) {
+        return {
+          ongoingProjects: result.data.ongoingProjects?.map(project => ({
+            ...project,
+            id: project._id || project.id,
+            progress: project.progress || 0,
+            deadline: project.deadline || new Date(),
+            budget: project.budget || 0,
+            status: project.status === "New" ? "New" : 
+                   project.status === "Resolved" ? "Under Review" : "In Progress"
+          })) || [],
+          completedProjects: result.data.completedProjects?.map(project => ({
+            ...project,
+            id: project._id || project.id,
+            completedDate: project.completedDate || project.updatedAt,
+            budget: project.budget || 0,
+            rating: project.rating || 0
+          })) || []
+        };
+      }
+      
+      return { ongoingProjects: [], completedProjects: [] };
+    } catch (error) {
+      console.error('Error fetching freelancer projects:', error);
+      throw new Error(error.message || 'Failed to fetch freelancer projects');
+    }
+  },
+
+    // Get projects where client has hired freelancers
+    getClientProjects: async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(`${API_URL}/client/projects`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+  
+        if (!response.ok) throw await parseError(response);
+        
+        const result = await response.json();
+        
+        // Format projects for display
+        const formatProjects = (projects) => projects?.map(project => ({
+          ...project,
+          id: project._id || project.id,
+          deadline: project.deadline ? new Date(project.deadline).toLocaleDateString() : 'Not set',
+          budget: project.budget ? `$${project.budget.toLocaleString()}` : 'Not specified',
+          completedDate: project.completedDate ? new Date(project.completedDate).toLocaleDateString() : undefined,
+          freelancer: project.freelancer || null
+        })) || [];
+  
+        return {
+          ongoingProjects: formatProjects(result.data?.ongoingProjects),
+          completedProjects: formatProjects(result.data?.completedProjects)
+        };
+      } catch (error) {
+        console.error('Error fetching client projects:', error);
+        throw new Error(error.message || 'Failed to load your projects');
+      }
+    },
+  
+
+
   // Get projects with status filtering
   getProjects: async (statusFilter) => {
     const token = localStorage.getItem('token');
@@ -8,7 +90,7 @@ export const ProjectServices = {
     try {
       const url = statusFilter 
         ? `${API_URL}/projects?status=${statusFilter}`
-        : `${API_URL}/projects`;
+        : `${API_URL}/jobs/`;
       
       const response = await fetch(url, {
         headers: {
@@ -113,15 +195,84 @@ export const ProjectServices = {
 
 // Job Services (matches your Job schema)
 export const JobServices = {
+
+  hireFreelancer: async (jobId, proposalId, hireData) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/jobs/${jobId}/hire`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          proposalId,
+          ...hireData
+        })
+      });
+
+      if (!response.ok) {
+        const error = await parseError(response);
+        console.error('Hiring error details:', error);
+        throw error;
+      }
+      
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error hiring freelancer:', error);
+      throw new Error(error.message || 'Failed to hire freelancer');
+    }
+  },
   // Get available jobs (Open status)
   getAvailableJobs: async () => {
+    const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/jobs?status=Open`);
+      const response = await fetch(`${API_URL}/jobs?status=Open`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (!response.ok) throw await parseError(response);
-      const { data } = await response.json();
-      return data;
+      
+      const result = await response.json();
+      
+      // Debug logging
+      console.log('API Response:', result);
+      
+      // Handle both response structures:
+      // 1. If response has { data } property
+      // 2. If response is the array directly
+      return result.data?.map(job => ({
+        ...job,
+        proposals: job.proposals || [], // Default to empty array
+        createdAt: job.createdAt || new Date().toISOString() // Default to current date
+      })) || [];
     } catch (error) {
+      console.error('Error fetching jobs:', error);
       throw new Error(error.message || 'Failed to fetch jobs');
+    }
+  },
+
+  // Add this new method for creating jobs
+  createJob: async (jobData) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/jobs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jobData)
+      });
+      
+      if (!response.ok) throw await parseError(response);
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create job');
     }
   },
 
@@ -143,6 +294,72 @@ export const JobServices = {
       return await response.json();
     } catch (error) {
       throw new Error(error.message || 'Proposal submission failed');
+    }
+  },
+
+  // Get proposals for a specific job
+  getJobProposals: async (jobId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/jobs/${jobId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw await parseError(response);
+      
+      const result = await response.json();
+      
+      // Format the response to match your controller's structure
+      if (!result.data || !result.data.proposals) {
+        return [];
+      }
+
+      // For each proposal, we need to fetch freelancer details
+      const proposalsWithFreelancers = await Promise.all(
+        result.data.proposals.map(async (proposal) => {
+          // Fetch freelancer details if not already populated
+          let freelancer = proposal.freelancer;
+          if (typeof freelancer === 'string') {
+            const freelancerResponse = await fetch(`${API_URL}/users/${freelancer}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (freelancerResponse.ok) {
+              const freelancerData = await freelancerResponse.json();
+              freelancer = freelancerData.data;
+            }
+          }
+
+          return {
+            id: proposal._id || proposal.id,
+            freelancer: {
+              id: freelancer?._id || freelancer?.id,
+              name: freelancer?.name || 'Unknown Freelancer',
+              avatar: freelancer?.avatar ? 
+                `${API_URL}/users/${freelancer._id}/avatar` : 
+                '/placeholder-user.jpg',
+              title: freelancer?.title || 'Freelancer',
+              rating: freelancer?.rating || 0,
+            },
+            bidAmount: proposal.bid || 0,
+            estimatedTime: proposal.timeline || 'Not specified',
+            message: proposal.message || 'No proposal message',
+            submittedAt: proposal.createdAt || new Date().toISOString(),
+            attachments: proposal.attachments || []
+          };
+        })
+      );
+
+      return proposalsWithFreelancers;
+    } catch (error) {
+      console.error('Error fetching job proposals:', error);
+      throw new Error(error.message || 'Failed to fetch proposals');
     }
   }
 };

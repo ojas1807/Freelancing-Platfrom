@@ -114,11 +114,11 @@ function Freelancer_Dashboard_Layout() {
               <div className="w-10 h-10 rounded-full bg-white/30"></div>
             </div>
             <div className="flex-1">
-              <div className="font-medium">Jane Smith</div>
+              <div className="font-medium text-white ">Jane Smith</div>
               <div className="text-xs text-white/70">jane.smith@example.com</div>
             </div>
-            <button className="btn btn-ghost btn-sm btn-circle">
-              <LogOut size={18} />
+            <button className="btn btn-ghost bg-white btn-sm btn-circle">
+              <LogOut className="text-white"size={18} />
             </button>
           </div>
         </div>

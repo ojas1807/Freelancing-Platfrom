@@ -10,8 +10,13 @@ import {
   uploadProjectFile,
   getAvailableJobs,
   getJobDetails,
-  submitJobProposal
+  submitJobProposal,
+  createProject,
+  hireFreelancer,
+  getClientProjects,
+  
 } from "../controllers/projectController.js";
+import { Job } from "../models/ProjectManagement.js";
 
 const router = express.Router();
 
@@ -44,15 +49,56 @@ const upload = multer({
 });
 
 // Project routes
+router.get("/client/projects", protect, getClientProjects);
 router.get("/freelancer/projects", protect, getFreelancerProjects);
 router.get("/projects/:projectId", protect, getProjectDetails);
 router.put("/projects/:projectId/progress", protect, updateProjectProgress);
 router.post("/projects/:projectId/messages", protect, addProjectMessage);
 router.post("/projects/:projectId/files", protect, upload.single('file'), uploadProjectFile);
+// Add this with your other routes (near the job routes section)
+router.post("/jobs", protect, async (req, res) => {
+  try {
+    const { name, description, client, budget, deadline, skills } = req.body;
+    
+    // Validate required fields
+    if (!name || !description || !client || !budget || !deadline) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
+
+    const newJob = new Job({
+      name,
+      description,
+      client: req.user._id,
+      budget,
+      deadline: new Date(deadline),
+      skills,
+      status: "Open",
+      proposals: []
+    });
+
+    await newJob.save();
+
+    res.status(201).json({
+      success: true,
+      data: newJob
+    });
+  } catch (error) {
+    console.error("Error creating job:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating job",
+      error: error.message
+    });
+  }
+}); 
 
 // Job routes
 router.get("/jobs", protect, getAvailableJobs);
 router.get("/jobs/:jobId", protect, getJobDetails);
+router.post("/jobs/:jobId/hire", protect,hireFreelancer);
 router.post("/jobs/:jobId/proposals", protect, upload.array('attachments', 5), submitJobProposal);
 
 export default router;

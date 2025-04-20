@@ -1,147 +1,451 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Briefcase, CheckCircle, Clock, Filter, PlusCircle, Search, Star } from "lucide-react"
-import PropTypes from "prop-types"
+import { useState, useEffect } from "react";
+import {
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Filter,
+  Mail,
+  PlusCircle,
+  Search,
+  Star,
+} from "lucide-react";
+import PropTypes from "prop-types";
+import { JobServices, ProjectServices } from "../services/projectServices.jsx";
+import HireDialog from "./HireDialog.jsx";
+import useAuth from "../hooks/useAuth.jsx";
 
-function ProjectManagement({
+function C_ProjectManagement({
   initialTab = "ongoing",
-  ongoingProjects = [],
-  completedProjects = [],
-  pendingProposals = [],
-  onPostJob = () => {},
   onMessageFreelancer = () => {},
   onViewDetails = () => {},
   onViewFiles = () => {},
-  onViewProposals = () => {},
-  onEditJob = () => {}
+  // onViewProposals = () => {},
+  // onEditJob = () => {},
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab)
-  const [showDialog, setShowDialog] = useState(false)
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showProposalsDialog, setShowProposalsDialog] = useState(false);
+  const [currentJobProposals, setCurrentJobProposals] = useState([]);
+  const [currentJob, setCurrentJob] = useState(null);
+  const [ongoing, setOngoing] = useState([]);
+  const [completed, setCompleted] = useState([]);
+  const [proposals, setProposals] = useState([]);
+  const [loading, setLoading] = useState({
+    ongoing: false,
+    completed: false,
+    proposals: false,
+    jobProposals: false,
+  });
+  const [error, setError] = useState({
+    ongoing: null,
+    completed: null,
+    proposals: null,
+    jobProposals: null,
+  });
 
-  // Use the passed props with fallback to the default data
-  const ongoing = ongoingProjects.length ? ongoingProjects : [
-    {
-      id: 1,
-      name: "E-commerce Website Redesign",
-      description: "Complete redesign of our e-commerce platform with modern UI/UX and improved checkout flow.",
-      freelancer: "Sarah Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      progress: 75,
-      deadline: "May 15, 2025",
-      budget: "$3,500",
-      status: "In Progress",
-    },
-    {
-      id: 2,
-      name: "Mobile App UI Design",
-      description: "Design a user-friendly interface for our new mobile application with focus on accessibility.",
-      freelancer: "Michael Chen",
-      avatar: "/placeholder.svg?height=40&width=40",
-      progress: 60,
-      deadline: "June 2, 2025",
-      budget: "$2,800",
-      status: "In Progress",
-    },
-    {
-      id: 3,
-      name: "SEO Optimization",
-      description: "Improve our website's search engine ranking through comprehensive SEO strategies.",
-      freelancer: "Emily Rodriguez",
-      avatar: "/placeholder.svg?height=40&width=40",
-      progress: 40,
-      deadline: "May 30, 2025",
-      budget: "$1,500",
-      status: "In Progress",
-    },
-    {
-      id: 4,
-      name: "Content Writing for Blog",
-      description: "Create engaging blog content focused on industry trends and best practices.",
-      freelancer: "David Wilson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      progress: 25,
-      deadline: "June 10, 2025",
-      budget: "$800",
-      status: "In Progress",
-    },
-  ]
+  // Fetch projects based on active tab
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        if (activeTab === "ongoing" && !ongoing.length) {
+          setLoading((prev) => ({ ...prev, ongoing: true }));
+          const { ongoingProjects } = await ProjectServices.getClientProjects();
+          setOngoing(ongoingProjects || []);
+          setError((prev) => ({ ...prev, ongoing: null }));
+        } else if (activeTab === "completed" && !completed.length) {
+          setLoading((prev) => ({ ...prev, completed: true }));
+          const { completedProjects } = await ProjectServices.getClientProjects();
+          setCompleted(completedProjects || []);
+          setError((prev) => ({ ...prev, completed: null }));
+        } else if (activeTab === "proposals" && !proposals.length) {
+          setLoading((prev) => ({ ...prev, proposals: true }));
+          const data = await JobServices.getAvailableJobs();
+          // Format the jobs data to ensure we have all required fields
 
-  const completed = completedProjects.length ? completedProjects : [
-    {
-      id: 5,
-      name: "Logo Design",
-      description: "Created a modern, versatile logo that represents our brand identity across all platforms.",
-      freelancer: "Jessica Lee",
-      avatar: "/placeholder.svg?height=40&width=40",
-      completedDate: "April 10, 2025",
-      budget: "$500",
-      rating: 5,
-    },
-    {
-      id: 6,
-      name: "Social Media Marketing Campaign",
-      description: "Developed and executed a comprehensive social media strategy to increase brand awareness.",
-      freelancer: "Robert Brown",
-      avatar: "/placeholder.svg?height=40&width=40",
-      completedDate: "March 25, 2025",
-      budget: "$1,200",
-      rating: 4,
-    },
-    {
-      id: 7,
-      name: "Website Performance Optimization",
-      description: "Improved website loading speed and overall performance through code optimization.",
-      freelancer: "Amanda Garcia",
-      avatar: "/placeholder.svg?height=40&width=40",
-      completedDate: "March 15, 2025",
-      budget: "$900",
-      rating: 5,
-    },
-  ]
+          // Debug: Log the raw data to see what we're getting
+          console.log("Raw jobs data:", data);
 
-  const proposals = pendingProposals.length ? pendingProposals : [
-    {
-      id: 8,
-      name: "Email Newsletter Design",
-      description: "Design responsive email templates for our monthly newsletter with focus on conversion.",
-      proposals: 5,
-      budget: "$300-$600",
-      deadline: "May 20, 2025",
-      posted: "2 days ago",
-    },
-    {
-      id: 9,
-      name: "Product Photography",
-      description: "Professional photography for our new product line including editing and optimization for web.",
-      proposals: 3,
-      budget: "$800-$1,200",
-      deadline: "May 25, 2025",
-      posted: "3 days ago",
-    },
-  ]
+          const formattedJobs = data.map((job) => ({
+            ...job,
+            id: job._id || job.id, // Handle both _id and id
+            proposalCount:
+              job.proposals ||
+              job.bid?.length ||
+              job.applications?.length ||
+              job.proposalCount ||
+              0, // Ensure proposals exists
+            createdAt:
+              job.createdAt || job.postedDate || new Date().toISOString(), // Fallback dates
+            deadline: job.deadline || job.endDate, // Fallback deadline
+          }));
+
+          setProposals(formattedJobs);
+          setError((prev) => ({ ...prev, proposals: null }));
+        }
+      } catch (err) {
+        console.error(`Error fetching ${activeTab} projects:`, err);
+        setError((prev) => ({ ...prev, [activeTab]: err.message }));
+      } finally {
+        setLoading((prev) => ({ ...prev, [activeTab]: false }));
+      }
+    };
+
+    fetchProjects();
+  }, [activeTab, ongoing.length, completed.length, proposals.length]);
+
+  // Function to fetch proposals for a specific job
+  const fetchJobProposals = async (jobId) => {
+    try {
+      setLoading((prev) => ({ ...prev, jobProposals: true }));
+      const data = await JobServices.getJobProposals(jobId);
+      setCurrentJobProposals(data);
+      setError((prev) => ({ ...prev, jobProposals: null }));
+    } catch (err) {
+      console.error("Error fetching job proposals:", err);
+      setError((prev) => ({ ...prev, jobProposals: err.message }));
+    } finally {
+      setLoading((prev) => ({ ...prev, jobProposals: false }));
+    }
+  };
+
+  // Function to handle view proposals button click
+  const handleViewProposals = async (job) => {
+    setCurrentJob(job);
+    await fetchJobProposals(job.id);
+    setShowProposalsDialog(true);
+  };
+
+  // Function to handle job posting
+  const handlePostJob = async (jobData) => {
+    try {
+      await JobServices.createJob(jobData);
+      // Refresh proposals after posting
+      const data = await JobServices.getAvailableJobs();
+      setProposals(data);
+      alert("Job posted successfully!");
+      setShowDialog(false);
+    } catch (error) {
+      console.error("Error posting job:", error);
+      alert("Failed to post job.");
+    }
+  };
+
+  // Function to update project progress
+  const handleUpdateProgress = async (projectId, newProgress) => {
+    try {
+      await ProjectServices.updateProgress(projectId, newProgress);
+      // Refresh ongoing projects after update
+      const data = await ProjectServices.getProjects("in-progress");
+      setOngoing(data);
+    } catch (error) {
+      console.error("Error updating progress:", error);
+      alert("Failed to update progress");
+    }
+  };
+
+  // Function to add message to project
+  const handleAddMessage = async (projectId, message) => {
+    try {
+      await ProjectServices.addMessage(projectId, message);
+      // Optionally refresh project data or update UI
+    } catch (error) {
+      console.error("Error adding message:", error);
+      alert("Failed to send message");
+    }
+  };
+
+  // Function to upload file to project
+  const handleUploadFile = async (projectId, file) => {
+    try {
+      await ProjectServices.uploadFile(projectId, file);
+      // Optionally refresh project data or update UI
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file");
+    }
+  };
 
   // Dialog component
   const Dialog = ({ isOpen, onClose, children }) => {
-    if (!isOpen) return null
+    if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
         <div
-          className="bg-white  rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-auto"
+          className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {children}
         </div>
       </div>
-    )
-  }
+    );
+  };
+  // Proposals Dialog component
+  const ProposalsDialog = ({
+    isOpen,
+    onClose,
+    job,
+    proposals,
+    loading,
+    error,
+  }) => {
+    if (!isOpen) return null;
+    const [selectedProposal, setSelectedProposal] = useState(null);
+    const [showHireDialog, setShowHireDialog] = useState(false);
+
+    const handleHire = async (hireData) => {
+      try {
+        console.log('Hiring data:', {
+          jobId: currentJob.id,
+          proposalId: selectedProposal.id,
+          hireData
+        });
+    
+        const result = await JobServices.hireFreelancer(
+          currentJob.id, 
+          selectedProposal.id, 
+          hireData
+        );
+    
+        if (!result) {
+          throw new Error('No response from server');
+        }
+    
+        alert('Freelancer hired successfully! Project created.');
+        setShowHireDialog(false);
+        setShowProposalsDialog(false);
+        
+        // Refresh the job list
+        const data = await JobServices.getAvailableJobs();
+        setProposals(data.map(job => ({
+          ...job,
+          id: job._id || job.id,
+          proposalCount: job.proposals?.length || 0
+        })));
+      } catch (error) {
+        console.error('Full hiring error:', error);
+        alert(`Hiring failed: ${error.message}`);
+      }
+    };
+
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Proposals for {job?.name || "Job"}
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {loading && (
+              <div className="flex justify-center items-center py-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-4 bg-red-50 text-red-600 rounded-md mb-4">
+                <p>Error: {error}</p>
+                <button
+                  onClick={() => fetchJobProposals(job.id)}
+                  className="mt-2 text-sm text-red-600 hover:text-red-800"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {!loading && !error && (
+              <div className="space-y-4">
+                {proposals.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    No proposals found for this job
+                  </div>
+                ) : (
+                  proposals.map((proposal) => (
+                    <div
+                      key={proposal.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="relative h-12 w-12 rounded-full overflow-hidden">
+                          <img
+                            src={
+                              proposal.freelancer?.avatar || "/placeholder.svg"
+                            }
+                            alt={proposal.freelancer?.name}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.src =
+                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fontFamily='system-ui' fontSize='12' fill='%236b7280'%3E" +
+                                (proposal.freelancer?.name || "")
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("") +
+                                "%3C/text%3E%3C/svg%3E";
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-gray-900">
+                                {proposal.freelancer?.name ||
+                                  "Unknown Freelancer"}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                {proposal.freelancer?.title || "Freelancer"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-sm font-medium">
+                                {proposal.freelancer?.rating?.toFixed(1) ||
+                                  "N/A"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="h-4 w-4 text-gray-500" />
+                              <span>
+                                $
+                                {proposal.bidAmount ||
+                                  proposal.price ||
+                                  "Not specified"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-gray-500" />
+                              <span>
+                                {proposal.estimatedTime || "Not specified"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3">
+                            <h4 className="text-sm font-medium text-gray-700 mb-1">
+                              Proposal
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {proposal.message ||
+                                proposal.description ||
+                                "No proposal message provided"}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 flex justify-end gap-2">
+                            <button className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+                              <Mail className="h-4 w-4 inline mr-1" />
+                              Message
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedProposal(proposal);
+                                setShowHireDialog(true);
+                              }}
+                              className="px-3 py-1 text-sm bg-primary text-white rounded-md hover:bg-primary/90"
+                            >
+                              Hire
+                            </button>
+                            {/* Add HireDialog */}
+                            {showHireDialog && selectedProposal && (
+                              <HireDialog
+                                job={job}
+                                proposal={selectedProposal}
+                                onClose={() => setShowHireDialog(false)}
+                                onHire={handleHire}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   Dialog.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    children: PropTypes.node.isRequired
-  }
+    children: PropTypes.node.isRequired,
+  };
+
+  ProposalsDialog.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    children: PropTypes.node.isRequired,
+    job: PropTypes.object,
+    proposals: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+  };
+
+  const { user } = useAuth();
+
+  // Loading state component
+  const LoadingState = () => (
+    <div className="flex justify-center items-center py-10">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
+
+  // Error state component
+  const ErrorState = ({ message }) => (
+    <div className="p-4 bg-red-50 text-red-600 rounded-md">
+      <p>Error: {message}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-2 text-sm text-red-600 hover:text-red-800"
+      >
+        Try again
+      </button>
+    </div>
+  );
+
+  ErrorState.propTypes = {
+    message: PropTypes.string.isRequired,
+  };
 
   return (
     <div className="space-y-6 mb-2 mr-2 ml-2">
@@ -156,10 +460,10 @@ function ProjectManagement({
             <input
               type="search"
               placeholder="Search projects..."
-              className="w-full sm:w-[200px] pl-8 py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              className="w-full sm:w-[200px] pl-8 py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
             />
           </div>
-          <button className="p-2  rounded-md text-gray-700  hover:bg-gray-50  focus:outline-none">
+          <button className="p-2 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none">
             <Filter className="h-4 w-4" />
           </button>
           <button
@@ -212,407 +516,559 @@ function ProjectManagement({
 
         {/* Tab Content */}
         <div className="mt-6">
+          {/* Loading state */}
+          {(loading.ongoing || loading.completed || loading.proposals) && (
+            <LoadingState />
+          )}
+
+          {/* Error states */}
+          {error.ongoing && activeTab === "ongoing" && (
+            <ErrorState message={error.ongoing} />
+          )}
+          {error.completed && activeTab === "completed" && (
+            <ErrorState message={error.completed} />
+          )}
+          {error.proposals && activeTab === "proposals" && (
+            <ErrorState message={error.proposals} />
+          )}
+
           {/* Ongoing Projects Tab */}
-          {activeTab === "ongoing" && (
+          {activeTab === "ongoing" && !loading.ongoing && !error.ongoing && (
             <div className="grid gap-6 md:grid-cols-2">
-              {ongoing.map((project) => (
-                <div key={project.id} className="rounded-lg  bg-white  shadow-sm overflow-hidden">
-                  <div className="p-4 border-b-gray-300 border-b">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold">{project.name}</h3>
-                        <p className="text-sm text-gray-500 mt-2">{project.description}</p>
-                      </div>
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary  border-primary/20">
-                        {project.status}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        {/* Avatar component */}
-                        <div className="relative h-8 w-8 rounded-full overflow-hidden">
-                          <img
-                            src={project.avatar || "/placeholder.svg"}
-                            alt={project.freelancer}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.target.src =
-                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fontFamily='system-ui' fontSize='12' fill='%236b7280'%3E" +
-                                project.freelancer
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("") +
-                                "%3C/text%3E%3C/svg%3E"
-                            }}
-                          />
-                        </div>
+              {ongoing.length > 0 ? (
+                ongoing.map((project) => (
+                  <div
+                    key={project.id}
+                    className="rounded-lg bg-white shadow-sm overflow-hidden"
+                  >
+                    <div className="p-4 border-b-gray-300 border-b">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm font-medium">{project.freelancer}</p>
-                          <p className="text-xs text-gray-500">Freelancer</p>
+                          <h3 className="text-lg font-semibold">
+                            {project.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-2">
+                            {project.description}
+                          </p>
                         </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>Progress</span>
-                          <span>{project.progress}%</span>
-                        </div>
-                        <div className="h-2 w-full bg-gray-200  rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full"
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-500 text-xs">Deadline</p>
-                          <p className="font-medium">{project.deadline}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Budget</p>
-                          <p className="font-medium">{project.budget}</p>
-                        </div>
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border-primary/20">
+                          {project.status}
+                        </span>
                       </div>
                     </div>
+                    <div className="p-4">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                            <img
+                              src={
+                                project.freelancer?.avatar || "/placeholder.svg"
+                              }
+                              alt={project.freelancer?.name}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                e.target.src =
+                                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fontFamily='system-ui' fontSize='12' fill='%236b7280'%3E" +
+                                  (project.freelancer?.name || "")
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("") +
+                                  "%3C/text%3E%3C/svg%3E";
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {project.freelancer?.name}
+                            </p>
+                            <p className="text-xs text-gray-500">Freelancer</p>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>Progress</span>
+                            <span>{project.progress}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full"
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-500 text-xs">Deadline</p>
+                            <p className="font-medium">
+                              {new Date(project.deadline).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500 text-xs">Budget</p>
+                            <p className="font-medium">${project.budget}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t-gray-300 border-t flex justify-between">
+                      <button
+                        className="py-1 px-3 rounded-md text-gray-700 text-sm hover:bg-gray-50 focus:outline-none"
+                        onClick={() => onMessageFreelancer(project)}
+                      >
+                        Message
+                      </button>
+                      <button
+                        className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
+                        onClick={() => onViewDetails(project)}
+                      >
+                        View Details
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4 border-t-gray-300 border-t flex justify-between">
-                    <button 
-                      className="py-1 px-3  rounded-md text-gray-700  text-sm hover:bg-gray-50 focus:outline-none"
-                      onClick={() => onMessageFreelancer(project)}
-                    >
-                      Message
-                    </button>
-                    <button 
-                      className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
-                      onClick={() => onViewDetails(project)}
-                    >
-                      View Details
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-10 text-gray-500">
+                  No ongoing projects found
                 </div>
-              ))}
+              )}
             </div>
           )}
 
           {/* Completed Projects Tab */}
-          {activeTab === "completed" && (
-            <div className="grid gap-6 md:grid-cols-2">
-              {completed.map((project) => (
-                <div key={project.id} className="rounded-lg  bg-white  shadow-sm overflow-hidden">
-                  <div className="p-4 border-b-gray-300 border-b">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold">{project.name}</h3>
-                        <p className="text-sm text-gray-500 mt-2">{project.description}</p>
+          {activeTab === "completed" &&
+            !loading.completed &&
+            !error.completed && (
+              <div className="grid gap-6 md:grid-cols-2">
+                {completed.length > 0 ? (
+                  completed.map((project) => (
+                    <div
+                      key={project.id}
+                      className="rounded-lg bg-white shadow-sm overflow-hidden"
+                    >
+                      <div className="p-4 border-b-gray-300 border-b">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-semibold">
+                              {project.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-2">
+                              {project.description}
+                            </p>
+                          </div>
+                          <div className="flex">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < project.rating
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-gray-300 "
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < project.rating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300 "
-                            }`}
-                          />
-                        ))}
+                      <div className="p-4">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                              <img
+                                src={
+                                  project.freelancer?.avatar ||
+                                  "/placeholder.svg"
+                                }
+                                alt={project.freelancer?.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  e.target.src =
+                                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fontFamily='system-ui' fontSize='12' fill='%236b7280'%3E" +
+                                    (project.freelancer?.name || "")
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("") +
+                                    "%3C/text%3E%3C/svg%3E";
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {project.freelancer?.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Freelancer
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-500 text-xs">
+                                Completed On
+                              </p>
+                              <p className="font-medium">
+                                {new Date(
+                                  project.completedDate
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 text-xs">Budget</p>
+                              <p className="font-medium">${project.budget}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 border-t-gray-300 border-t flex justify-between">
+                        <button
+                          className="py-1 px-3 rounded-md text-gray-700 text-sm hover:bg-gray-50 focus:outline-none"
+                          onClick={() => onViewFiles(project)}
+                        >
+                          View Files
+                        </button>
+                        <button
+                          className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
+                          onClick={() => onViewDetails(project)}
+                        >
+                          View Details
+                        </button>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 text-center py-10 text-gray-500">
+                    No completed projects found
                   </div>
-                  <div className="p-4">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        {/* Avatar component */}
-                        <div className="relative h-8 w-8 rounded-full overflow-hidden">
-                          <img
-                            src={project.avatar || "/placeholder.svg"}
-                            alt={project.freelancer}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.target.src =
-                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fontFamily='system-ui' fontSize='12' fill='%236b7280'%3E" +
-                                project.freelancer
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("") +
-                                "%3C/text%3E%3C/svg%3E"
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">{project.freelancer}</p>
-                          <p className="text-xs text-gray-500">Freelancer</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-500 text-xs">Completed On</p>
-                          <p className="font-medium">{project.completedDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Budget</p>
-                          <p className="font-medium">{project.budget}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 border-t-gray-300 border-t flex justify-between">
-                    <button 
-                      className="py-1 px-3  rounded-md text-gray-700  text-sm hover:bg-gray-50  focus:outline-none"
-                      onClick={() => onViewFiles(project)}
-                    >
-                      View Files
-                    </button>
-                    <button 
-                      className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
-                      onClick={() => onViewDetails(project)}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </div>
+            )}
 
           {/* Job Postings Tab */}
-          {activeTab === "proposals" && (
-            <div className="grid gap-6 md:grid-cols-2">
-              {proposals.map((project) => (
-                <div key={project.id} className="rounded-lg  bg-white  shadow-sm overflow-hidden">
-                  <div className="p-4 border-b-gray-300 border-b">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold">{project.name}</h3>
-                        <p className="text-sm text-gray-500 mt-2">{project.description}</p>
-                      </div>
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100  text-gray-800 ">
-                        {project.proposals} Proposals
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-500 text-xs">Budget</p>
-                          <p className="font-medium">{project.budget}</p>
+          {activeTab === "proposals" &&
+            !loading.proposals &&
+            !error.proposals && (
+              <div className="grid gap-6 md:grid-cols-2">
+                {proposals.length > 0 ? (
+                  proposals.map((job) => {
+                    // Calculate number of proposals
+                    const proposalCount = job.proposalCount;
+
+                    // Format dates
+                    const postedDate = job.createdAt
+                      ? new Date(job.createdAt).toLocaleDateString()
+                      : "Not specified";
+                    const deadlineDate = job.deadline
+                      ? new Date(job.deadline).toLocaleDateString()
+                      : "Not specified";
+
+                    // Format budget
+                    let budgetDisplay = "Not specified";
+                    if (job.budget) {
+                      if (typeof job.budget === "object") {
+                        budgetDisplay = `$${job.budget.min || "0"} - $${
+                          job.budget.max || "0"
+                        }`;
+                      } else if (typeof job.budget === "string") {
+                        budgetDisplay = job.budget;
+                      } else if (typeof job.budget === "number") {
+                        budgetDisplay = `$${job.budget}`;
+                      }
+                    }
+
+                    return (
+                      <div
+                        key={job.id}
+                        className="rounded-lg bg-white shadow-sm overflow-hidden"
+                      >
+                        <div className="p-4 border-b-gray-300 border-b">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-semibold">
+                                {job.name || "Untitled Project"}
+                              </h3>
+                              <p className="text-sm text-gray-500 mt-2">
+                                {job.description || "No description provided"}
+                              </p>
+                            </div>
+                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                              {proposalCount}{" "}
+                              {proposalCount === 1 ? "Proposal" : "Proposals"}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Deadline</p>
-                          <p className="font-medium">{project.deadline}</p>
+                        <div className="p-4">
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-gray-500 text-xs">Budget</p>
+                                <p className="font-medium">{budgetDisplay}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 text-xs">
+                                  Deadline
+                                </p>
+                                <p className="font-medium">{deadlineDate}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 text-xs">Posted</p>
+                              <p className="text-sm">{postedDate}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-4 border-t-gray-300 border-t flex justify-between">
+                          {/* <button
+                            className="py-1 px-3 rounded-md text-gray-700 text-sm hover:bg-gray-50 focus:outline-none"
+                            onClick={() => onEditJob(job)}
+                          >
+                            Edit Job
+                          </button> */}
+                          <button
+                            className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
+                            onClick={() => handleViewProposals(job)}
+                          >
+                            View Proposals
+                          </button>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-gray-500 text-xs">Posted</p>
-                        <p className="text-sm">{project.posted}</p>
-                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-lg bg-white shadow-sm flex flex-col items-center justify-center p-6 col-span-2">
+                    <div className="rounded-full bg-primary/10 p-3 mb-4">
+                      <PlusCircle className="h-6 w-6 text-primary" />
                     </div>
-                  </div>
-                  <div className="p-4 border-t-gray-300 border-t flex justify-between">
-                    <button 
-                      className="py-1 px-3  rounded-md text-gray-700  text-sm hover:bg-gray-50  focus:outline-none"
-                      onClick={() => onEditJob(project)}
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Job Postings Found
+                    </h3>
+                    <p className="text-center text-gray-500 mb-4">
+                      Create a new project to find the perfect freelancer for
+                      your needs.
+                    </p>
+                    <button
+                      className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 font-medium"
+                      onClick={() => setShowDialog(true)}
                     >
-                      Edit Job
-                    </button>
-                    <button 
-                      className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
-                      onClick={() => onViewProposals(project)}
-                    >
-                      View Proposals
+                      Post a Job
                     </button>
                   </div>
-                </div>
-              ))}
-              <div className="rounded-lg  bg-white  shadow-sm flex flex-col items-center justify-center p-6">
-                <div className="rounded-full bg-primary/10 p-3 mb-4">
-                  <PlusCircle className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Post a New Job</h3>
-                <p className="text-center text-gray-500 mb-4">
-                  Create a new project to find the perfect freelancer for your needs.
-                </p>
-                <button
-                  className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 font-medium"
-                  onClick={() => setShowDialog(true)}
-                >
-                  Post a Job
-                </button>
+                )}
+                {proposals.length > 0 && (
+                  <div className="rounded-lg bg-white shadow-sm flex flex-col items-center justify-center p-6">
+                    <div className="rounded-full bg-primary/10 p-3 mb-4">
+                      <PlusCircle className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Post a New Job
+                    </h3>
+                    <p className="text-center text-gray-500 mb-4">
+                      Create a new project to find the perfect freelancer for
+                      your needs.
+                    </p>
+                    <button
+                      className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 font-medium"
+                      onClick={() => setShowDialog(true)}
+                    >
+                      Post a Job
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
 
-      {/* Dialog for posting a new job */}
+      {/* Enhanced Dialog for posting a new job */}
       <Dialog isOpen={showDialog} onClose={() => setShowDialog(false)}>
         <div className="p-6">
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold">Post a New Job</h2>
-            <p className="text-sm text-gray-500">Create a new project to find the perfect freelancer for your needs.</p>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Post a New Job</h2>
+            <button
+              onClick={() => setShowDialog(false)}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="project-title" className="text-sm font-medium">
-                Project Title
-              </label>
-              <input
-                id="project-title"
-                placeholder="E.g., Website Redesign, Logo Design"
-                className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="project-description" className="text-sm font-medium">
-                Description
-              </label>
-              <textarea
-                id="project-description"
-                placeholder="Describe your project requirements in detail..."
-                rows={4}
-                className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-              ></textarea>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="project-budget" className="text-sm font-medium">
-                  Budget
-                </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">$</span>
-                  <input
-                    id="project-budget"
-                    type="number"
-                    placeholder="Amount"
-                    className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="project-deadline" className="text-sm font-medium">
-                  Deadline
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+
+              const jobData = {
+                name: e.target.name.value,
+                description: e.target.description.value,
+                client: user.id,
+                budget: {
+                  min: parseFloat(e.target.budgetMin.value),
+                  max: parseFloat(e.target.budgetMax.value),
+                },
+                deadline: e.target.deadline.value,
+                skills: e.target.skills.value
+                  .split(",")
+                  .map((skill) => skill.trim()),
+              };
+              handlePostJob(jobData);
+            }}
+          >
+            <div className="space-y-4">
+              {/* Job Title */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Job Title*
                 </label>
                 <input
-                  id="project-deadline"
-                  type="date"
-                  className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="e.g. Website Redesign"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 />
               </div>
+
+              {/* Job Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Description*
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={4}
+                  placeholder="Describe the job requirements in detail..."
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+              </div>
+
+              {/* Budget Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Budget Range*
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <input
+                      type="number"
+                      id="budgetMin"
+                      name="budgetMin"
+                      placeholder="Minimum ($)"
+                      required
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      id="budgetMax"
+                      name="budgetMax"
+                      placeholder="Maximum ($)"
+                      required
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Deadline */}
+              <div>
+                <label
+                  htmlFor="deadline"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Deadline*
+                </label>
+                <input
+                  type="date"
+                  id="deadline"
+                  name="deadline"
+                  required
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+              </div>
+
+              {/* Required Skills */}
+              <div>
+                <label
+                  htmlFor="skills"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Required Skills
+                </label>
+                <input
+                  type="text"
+                  id="skills"
+                  name="skills"
+                  placeholder="e.g. React, Node.js, UI Design (comma separated)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+              </div>
+
+              {/* Form Actions */}
+              <div className="pt-4 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDialog(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+                >
+                  Post Job
+                </button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <label htmlFor="project-category" className="text-sm font-medium">
-                Category
-              </label>
-              <select
-                id="project-category"
-                className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none bg-white "
-              >
-                <option value="" disabled selected>
-                  Select category
-                </option>
-                <option value="web-design">Web Design</option>
-                <option value="graphic-design">Graphic Design</option>
-                <option value="content-writing">Content Writing</option>
-                <option value="marketing">Marketing</option>
-                <option value="development">Development</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="project-skills" className="text-sm font-medium">
-                Required Skills
-              </label>
-              <input
-                id="project-skills"
-                placeholder="E.g., JavaScript, Photoshop, SEO"
-                className="w-full py-2 px-3  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-              />
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end gap-2">
-            <button
-              className="py-2 px-4  rounded-md text-gray-700  hover:bg-gray-50  focus:outline-none"
-              onClick={() => setShowDialog(false)}
-            >
-              Cancel
-            </button>
-            <button 
-              className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none"
-              onClick={() => {
-                onPostJob({
-                  title: document.getElementById('project-title').value,
-                  description: document.getElementById('project-description').value,
-                  budget: document.getElementById('project-budget').value,
-                  deadline: document.getElementById('project-deadline').value,
-                  category: document.getElementById('project-category').value,
-                  skills: document.getElementById('project-skills').value
-                });
-                setShowDialog(false);
-              }}
-            >
-              Post Project
-            </button>
-          </div>
+          </form>
         </div>
       </Dialog>
+
+      <ProposalsDialog
+        isOpen={showProposalsDialog}
+        onClose={() => setShowProposalsDialog(false)}
+        job={currentJob}
+        proposals={currentJobProposals}
+        loading={loading.jobProposals}
+        error={error.jobProposals}
+      />
     </div>
-  )
+  );
 }
 
 // PropTypes validation for the ProjectManagement component
-ProjectManagement.propTypes = {
-  // Initial active tab
-  initialTab: PropTypes.oneOf(['ongoing', 'completed', 'proposals']),
-  
-  // Data arrays
-  ongoingProjects: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      name: PropTypes.string.isRequired,
-      description: PropTypes.string.isRequired,
-      freelancer: PropTypes.string.isRequired,
-      avatar: PropTypes.string,
-      progress: PropTypes.number.isRequired,
-      deadline: PropTypes.string.isRequired,
-      budget: PropTypes.string.isRequired,
-      status: PropTypes.string.isRequired,
-    })
-  ),
-  
-  completedProjects: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      name: PropTypes.string.isRequired,
-      description: PropTypes.string.isRequired,
-      freelancer: PropTypes.string.isRequired,
-      avatar: PropTypes.string,
-      completedDate: PropTypes.string.isRequired,
-      budget: PropTypes.string.isRequired,
-      rating: PropTypes.number.isRequired,
-    })
-  ),
-  
-  pendingProposals: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      name: PropTypes.string.isRequired,
-      description: PropTypes.string.isRequired,
-      proposals: PropTypes.number.isRequired,
-      budget: PropTypes.string.isRequired,
-      deadline: PropTypes.string.isRequired,
-      posted: PropTypes.string.isRequired,
-    })
-  ),
-  
-  // Callback functions
-  onPostJob: PropTypes.func,
+C_ProjectManagement.propTypes = {
+  initialTab: PropTypes.oneOf(["ongoing", "completed", "proposals"]),
   onMessageFreelancer: PropTypes.func,
   onViewDetails: PropTypes.func,
   onViewFiles: PropTypes.func,
   onViewProposals: PropTypes.func,
   onEditJob: PropTypes.func,
-}
+};
 
-export default ProjectManagement;
+export default C_ProjectManagement;

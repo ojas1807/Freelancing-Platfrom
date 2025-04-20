@@ -1,6 +1,149 @@
 import { Project, Job } from "../models/ProjectManagement.js";
 import User from "../models/User.js";
 
+
+// Add to your ProjectManagement controller file
+export const hireFreelancer = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const { proposalId, startDate, milestones } = req.body;
+    const { _id } = req.user;
+
+    // 1. Verify the job exists and belongs to this client
+    const job = await Job.findById(jobId);
+    if (!job || job.client.toString() !== _id.toString()) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found or you don't have permission"
+      });
+    }
+
+    // 2. Find the proposal
+    const proposal = job.proposals.id(proposalId);
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        message: "Proposal not found"
+      });
+    }
+
+    // 3. Create a new project from this job
+    const newProject = new Project({
+      name: job.name,
+      description: job.description,
+      budget: proposal.bid,
+      client: _id,
+      freelancer: proposal.freelancer,
+      deadline: new Date(startDate),
+      status: "In Progress",
+      milestones: milestones.map(m => ({
+        name: m.name,
+        amount: m.amount,
+        dueDate: new Date(m.dueDate),
+        status: "Pending"
+      }))
+    });
+
+    // 4. Update job status and hired proposal
+    job.status = "Closed";
+    proposal.status = "Accepted";
+    
+    // 5. Save all changes
+    await Promise.all([newProject.save(), job.save()]);
+
+    // 6. Notify freelancer (you'd implement this separately)
+    // await notifyFreelancer(proposal.freelancer, jobId);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        project: newProject,
+        job
+      }
+    });
+  } catch (error) {
+    console.error("Error hiring freelancer:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error hiring freelancer",
+      error: error.message
+    });
+  }
+};
+
+// In your ProjectController.js
+export const createProject = async (req, res) => {
+  try {
+    const { name, description, budget, deadline } = req.body;
+    const { _id } = req.user; // Assuming you have user authentication
+
+    const newProject = new Project({
+      name,
+      description,
+      budget,
+      deadline,
+      client: _id, // Associate the project with the client
+      status: "Open", // Initial status
+    });
+
+    await newProject.save();
+    res.status(201).json({ message: "Project created successfully", project: newProject });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating project", error });
+  }
+};
+
+// In your projectController.js
+export const getClientProjects = async (req, res) => {
+  try {
+    const { _id } = req.user;
+    
+    // Get projects where current user is the client
+    const ongoingProjects = await Project.find({
+      client: _id,
+      status: { $in: ["New", "In Progress", "Resolved"] }
+    }).populate("freelancer", "name email avatar");
+    
+    const completedProjects = await Project.find({
+      client: _id,
+      status: "Completed"
+    }).populate("freelancer", "name email avatar");
+
+    // Format response
+    const formatProjects = (projects) => projects.map(project => ({
+      id: project._id,
+      name: project.name,
+      description: project.description,
+      freelancer: project.freelancer ? {
+        id: project.freelancer._id,
+        name: project.freelancer.name,
+        email: project.freelancer.email,
+        avatar: project.freelancer.avatar || '/placeholder-user.jpg'
+      } : null,
+      progress: project.progress,
+      deadline: project.deadline,
+      budget: project.budget,
+      status: project.status,
+      ...(project.completedDate && { completedDate: project.completedDate })
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ongoingProjects: formatProjects(ongoingProjects),
+        completedProjects: formatProjects(completedProjects)
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching client projects:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching your projects",
+      error: error.message
+    });
+  }
+};
+
 // Project Controllers (for ongoing and completed projects)
 export const getFreelancerProjects = async (req, res) => {
   try {
