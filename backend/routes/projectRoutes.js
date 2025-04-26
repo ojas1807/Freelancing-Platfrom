@@ -11,9 +11,15 @@ import {
   getAvailableJobs,
   getJobDetails,
   submitJobProposal,
-  createProject,
+  // createProject,
   hireFreelancer,
   getClientProjects,
+  toggleMilestone,
+  addMilestone,
+  deleteMilestone,
+  getMilestones,
+  getProjectFiles,
+  rateProject,
   
 } from "../controllers/projectController.js";
 import { Job } from "../models/ProjectManagement.js";
@@ -52,9 +58,16 @@ const upload = multer({
 router.get("/client/projects", protect, getClientProjects);
 router.get("/freelancer/projects", protect, getFreelancerProjects);
 router.get("/projects/:projectId", protect, getProjectDetails);
-router.put("/projects/:projectId/progress", protect, updateProjectProgress);
+router.patch("/projects/:projectId/progress", protect, updateProjectProgress);
+router.patch("/projects/:projectId/status", protect, rateProject);
 router.post("/projects/:projectId/messages", protect, addProjectMessage);
 router.post("/projects/:projectId/files", protect, upload.single('file'), uploadProjectFile);
+router.get("/projects/:projectId/files", protect, getProjectFiles);
+router.post('/projects/:projectId/milestones',protect, addMilestone);
+router.get('/projects/:projectId/milestones', protect, getMilestones);
+router.patch('/projects/:projectId/milestones/:milestoneId/toggle',protect, toggleMilestone);
+router.delete('/projects/:projectId/milestones/:milestoneId', protect, deleteMilestone);
+
 // Add this with your other routes (near the job routes section)
 router.post("/jobs", protect, async (req, res) => {
   try {

@@ -20,7 +20,6 @@
   const navigate = useNavigate();
   const { user } = useAuth();
   const token = localStorage.getItem("token");
-  console.log("I got the token",token)
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -288,10 +287,10 @@
                       <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
                       <select 
                         className="select select-bordered w-full"
-                        value={companyInfo.size}
+                        value={companyInfo.size || "1-10"}
                         onChange={(e) => setCompanyInfo({...companyInfo, size: e.target.value})}
+                        required={clientType !== "individual"}
                       >
-                        <option value="">Select company size</option>
                         <option value="1-10">1-10 employees</option>
                         <option value="11-50">11-50 employees</option>
                         <option value="51-200">51-200 employees</option>
@@ -501,7 +500,7 @@
                       <label className="block text-sm font-medium text-gray-700 mb-2">Work Hours</label>
                       <select 
                         className="select select-bordered w-full"
-                        value={budget.workHours}
+                        value={budget.workHours || "10-30 hrs/week"}
                         onChange={(e) => setBudget({...budget, workHours: e.target.value})}
                       >
                         <option value="">Select typical work hours</option>

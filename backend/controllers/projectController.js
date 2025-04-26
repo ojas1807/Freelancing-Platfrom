@@ -253,7 +253,7 @@ export const updateProjectProgress = async (req, res) => {
     // Verify user is the assigned freelancer
     const project = await Project.findOne({
       _id: projectId,
-      freelancer: _id
+      client: _id
     });
     
     if (!project) {
@@ -266,7 +266,7 @@ export const updateProjectProgress = async (req, res) => {
     // Update progress
     project.progress = progress;
     if (progress === 100) {
-      project.status = "Resolved";
+      project.status = "Completed";
     }
     
     await project.save();
@@ -282,6 +282,129 @@ export const updateProjectProgress = async (req, res) => {
       message: "Error updating project progress",
       error: error.message
     });
+  }
+};
+
+// Rate Project
+export const rateProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { rating } = req.body;
+    const { _id } = req.user;
+
+    // Verify user is the assigned freelancer
+    const project = await Project.findOne({
+      _id: projectId,
+      client: _id
+    });
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (project.status !== "Completed") {
+      return res.status(400).json({ error: "Project must be completed to rate" });
+    }
+    if (project.rating) {
+      return res.status(400).json({ error: "Project already rated" });
+    }
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+
+    project.rating = rating;
+    project.completedDate = new Date();
+    project.status = "Completed"; // Ensure status is set to completed
+    await project.save();
+
+    res.status(200).json({ message: "Project rated successfully" });
+  } catch (error) {
+    console.error("Error rating project:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// controllers/projectController.js
+export const getMilestones = async (req, res) => {
+  const { projectId } = req.params;
+  const { _id } = req.user;
+  try {
+    const project = await Project.findOne({
+      _id: projectId,
+      client: _id
+    })
+      .select('milestones');
+    res.json(project.milestones);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Add Milestone
+export const addMilestone = async (req, res) => {
+  const { projectId } = req.params;
+  const { _id } = req.user;
+  try {
+    // Verify user is the assigned freelancer
+    const project = await Project.findOne({
+      _id: projectId,
+      client: _id
+    });
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const milestone = {
+      name: req.body.name,
+      dueDate: req.body.dueDate,
+      description: req.body.description || ""
+    };
+
+    project.milestones.push(milestone);
+    await project.save();
+
+    res.status(201).json(project.milestones.slice(-1)[0]);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Toggle Milestone
+export const toggleMilestone = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const milestone = project.milestones.id(req.params.milestoneId);
+    if (!milestone) {
+      return res.status(404).json({ error: "Milestone not found" });
+    }
+
+    milestone.completed = !milestone.completed;
+    milestone.completedDate = milestone.completed ? new Date() : undefined;
+    await project.save();
+
+    res.json(milestone);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Delete Milestone
+export const deleteMilestone = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    project.milestones.pull({ _id: req.params.milestoneId });
+    await project.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -382,6 +505,39 @@ export const uploadProjectFile = async (req, res) => {
     });
   }
 };
+
+// getprojectfiles
+export const getProjectFiles = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { _id } = req.user;
+    
+    // Verify user is either the client or freelancer
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [{ freelancer: _id }, { client: _id }]
+    });
+    
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found or you don't have access"
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: project.files
+    });
+  } catch (error) {
+    console.error("Error fetching project files:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching files",
+      error: error.message
+    });
+  }
+}
 
 // Job Controllers (available jobs)
 export const getAvailableJobs = async (req, res) => {

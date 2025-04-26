@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import {
   Briefcase,
   Calendar,
@@ -17,6 +18,7 @@ import PropTypes from "prop-types";
 import { JobServices, ProjectServices } from "../services/projectServices.jsx";
 import HireDialog from "./HireDialog.jsx";
 import useAuth from "../hooks/useAuth.jsx";
+import ProjectManagementModal from "./ProjectManagementModal.jsx";
 
 function C_ProjectManagement({
   initialTab = "ongoing",
@@ -46,6 +48,105 @@ function C_ProjectManagement({
     proposals: null,
     jobProposals: null,
   });
+
+  // Add this state
+const [files, setFiles] = useState([]);
+
+// Add this handler
+const handleFetchFiles = async (projectId) => {
+  try {
+    const fetchedFiles = await ProjectServices.getFiles(projectId);
+    setFiles(fetchedFiles);
+    return fetchedFiles;
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    toast.error("Failed to fetch files");
+    return [];
+  }
+};
+
+// Add this handler function
+const handleCompleteProject = async (projectId,rating) => {
+  try {
+    await ProjectServices.updateProjectStatus(projectId,rating, "completed");
+    
+    
+    // Update local state
+    setOngoing(prev => prev.filter(p => p.id !== projectId));
+    const completedProject = ongoing.find(p => p.id === projectId);
+    if (completedProject) {
+      setCompleted(prev => [...prev, { ...completedProject, status: 'completed', completedDate: new Date(), rating: rating }]);
+    }
+    
+    toast.success("Project marked as completed!");
+    setShowManagementModal(false);
+  } catch (error) {
+    console.error("Error completing project:", error);
+    toast.error("Failed to mark project as complete");
+  }
+};
+
+
+  // Add to your existing state
+const [selectedProject, setSelectedProject] = useState(null);
+const [showManagementModal, setShowManagementModal] = useState(false);
+const [projects, setProjects] = useState([]);
+
+// Add these handler functions
+const handleViewDetails = (project) => {
+  setSelectedProject(project);
+  setShowManagementModal(true);
+};
+
+const handleMilestoneAdded = (updatedProject) => {
+  setSelectedProject(updatedProject);
+  setProjects(projects.map(p => 
+    p.id === updatedProject.id ? updatedProject : p
+  ));
+};
+
+const handleUpdateProgress = async (projectId, newProgress) => {
+  try {
+    await ProjectServices.updateProgress(projectId, newProgress);
+    // Update local state
+    setOngoing(prev => prev.map(p => 
+      p.id === projectId ? { ...p, progress: newProgress } : p
+    ));
+    toast.success("Progress updated successfully");
+  } catch (error) {
+    console.error("Error updating progress:", error);
+    toast.error("Failed to update progress");
+  }
+};
+
+const handleUploadFile = async (projectId, file) => {
+  try {
+    const response = await ProjectServices.uploadFile(projectId, file);
+    // Update local state
+    setOngoing(prev => prev.map(p => 
+      p.id === projectId ? { 
+        ...p, 
+        files: [...(p.files || []), response.data] 
+      } : p
+    ));
+    toast.success("File uploaded successfully");
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    toast.error("Failed to upload file");
+  }
+};
+
+const handleSendMessage = async (projectId, content) => {
+  try {
+    await ProjectServices.addMessage(projectId, content);
+    toast.success("Message sent successfully");
+  } catch (error) {
+    console.error("Error sending message:", error);
+    toast.error("Failed to send message");
+  }
+};
+
+
 
   // Fetch projects based on active tab
   useEffect(() => {
@@ -134,40 +235,40 @@ function C_ProjectManagement({
     }
   };
 
-  // Function to update project progress
-  const handleUpdateProgress = async (projectId, newProgress) => {
-    try {
-      await ProjectServices.updateProgress(projectId, newProgress);
-      // Refresh ongoing projects after update
-      const data = await ProjectServices.getProjects("in-progress");
-      setOngoing(data);
-    } catch (error) {
-      console.error("Error updating progress:", error);
-      alert("Failed to update progress");
-    }
-  };
+  // // Function to update project progress
+  // const handleUpdateProgress = async (projectId, newProgress) => {
+  //   try {
+  //     await ProjectServices.updateProgress(projectId, newProgress);
+  //     // Refresh ongoing projects after update
+  //     const data = await ProjectServices.getProjects("in-progress");
+  //     setOngoing(data);
+  //   } catch (error) {
+  //     console.error("Error updating progress:", error);
+  //     alert("Failed to update progress");
+  //   }
+  // };
 
-  // Function to add message to project
-  const handleAddMessage = async (projectId, message) => {
-    try {
-      await ProjectServices.addMessage(projectId, message);
-      // Optionally refresh project data or update UI
-    } catch (error) {
-      console.error("Error adding message:", error);
-      alert("Failed to send message");
-    }
-  };
+  // // Function to add message to project
+  // const handleAddMessage = async (projectId, message) => {
+  //   try {
+  //     await ProjectServices.addMessage(projectId, message);
+  //     // Optionally refresh project data or update UI
+  //   } catch (error) {
+  //     console.error("Error adding message:", error);
+  //     alert("Failed to send message");
+  //   }
+  // };
 
-  // Function to upload file to project
-  const handleUploadFile = async (projectId, file) => {
-    try {
-      await ProjectServices.uploadFile(projectId, file);
-      // Optionally refresh project data or update UI
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Failed to upload file");
-    }
-  };
+  // // Function to upload file to project
+  // const handleUploadFile = async (projectId, file) => {
+  //   try {
+  //     await ProjectServices.uploadFile(projectId, file);
+  //     // Optionally refresh project data or update UI
+  //   } catch (error) {
+  //     console.error("Error uploading file:", error);
+  //     alert("Failed to upload file");
+  //   }
+  // };
 
   // Dialog component
   const Dialog = ({ isOpen, onClose, children }) => {
@@ -619,9 +720,9 @@ function C_ProjectManagement({
                       </button>
                       <button
                         className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
-                        onClick={() => onViewDetails(project)}
+                        onClick={() => handleViewDetails(project)}
                       >
-                        View Details
+                        Manage Project
                       </button>
                     </div>
                   </div>
@@ -660,12 +761,15 @@ function C_ProjectManagement({
                               <Star
                                 key={i}
                                 className={`h-4 w-4 ${
-                                  i < project.rating
+                                  i < (project.rating || 0)
                                     ? "text-yellow-400 fill-yellow-400"
                                     : "text-gray-300 "
                                 }`}
                               />
                             ))}
+                            <span className="text-xs text-gray-500 ml-1">
+        ({project.rating?.toFixed(1)})
+      </span>
                           </div>
                         </div>
                       </div>
@@ -727,7 +831,7 @@ function C_ProjectManagement({
                         </button>
                         <button
                           className="py-1 px-3 bg-primary text-white rounded-md text-sm hover:bg-primary/90 focus:outline-none"
-                          onClick={() => onViewDetails(project)}
+                          onClick={() => handleViewDetails(project)}
                         >
                           View Details
                         </button>
@@ -1057,6 +1161,21 @@ function C_ProjectManagement({
         loading={loading.jobProposals}
         error={error.jobProposals}
       />
+
+{showManagementModal && selectedProject && (
+  <ProjectManagementModal
+  project={selectedProject}
+  milestones={selectedProject?.milestones || []}
+  onClose={() => setShowManagementModal(false)}
+  onMilestoneAdded={handleMilestoneAdded}
+  onUpdateProgress={handleUpdateProgress}
+  files={files} // Pass files as prop
+  onUploadFile={handleUploadFile}
+  onSendMessage={handleSendMessage}
+  onFetchFiles={handleFetchFiles} // Pass the fetch function
+  onCompleteProject={handleCompleteProject} // Add this prop
+/>
+)}
     </div>
   );
 }

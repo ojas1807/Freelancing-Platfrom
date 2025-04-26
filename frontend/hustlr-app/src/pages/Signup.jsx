@@ -38,6 +38,7 @@ export default function Signup() {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user)); // Store user data for future referen
         localStorage.setItem("userRole", selectedRole); // Store user role for future reference
         alert("Signup Successful!");
         document.getElementById("my_modal_signup").close();

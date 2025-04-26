@@ -1,6 +1,10 @@
+import toast from "react-hot-toast";
+
 const API_URL = 'http://localhost:5000/api/project';
 
 export const ProjectServices = {
+
+  
 
   // New method to get freelancer's projects
   getFreelancerProjects: async () => {
@@ -141,11 +145,55 @@ export const ProjectServices = {
         },
         body: JSON.stringify({ progress })
       });
+      toast.success('Project progress updated successfully!');
 
       if (!response.ok) throw await parseError(response);
       return await response.json();
     } catch (error) {
       throw new Error(error.message || 'Failed to update progress');
+    }
+  },
+
+  //update project status (matches your schema)
+  updateProjectStatus: async (projectId, status, rating) => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch(`${API_URL}/projects/${projectId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status, rating })
+      });
+      toast.success('Project status updated successfully!');
+      if (!response.ok) throw await parseError(response);
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update status');
+    }
+  },
+
+  // rating project (matches your schema)
+  rateProject: async (projectId, rating) => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch(`${API_URL}/projects/${projectId}/rating`, {
+        method: 'PATCH',
+        headers
+: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ rating })
+      });
+      toast.success('Project rating updated successfully!');
+      if (!response.ok) throw await parseError(response);
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update rating');
     }
   },
 
@@ -189,6 +237,114 @@ export const ProjectServices = {
       return await response.json();
     } catch (error) {
       throw new Error(error.message || 'File upload failed');
+    }
+  },
+
+  // Get project files (matches files subdocument)
+  getFiles: async (projectId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/projects/${projectId}/files`, {
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw await parseError(response);
+      const result = await response.json();
+      return result.data?.map(file => ({
+        id: file._id || file.id,
+        name: file.name || 'Unknown File',
+        url: file.url || `${API_URL}/projects/${projectId}/files/${file._id}`,
+        uploadedAt: file.createdAt || new Date().toISOString()
+      })) || [];
+    } catch (error) {
+      console.error('Error fetching project files:', error);
+      throw new Error(error.message || 'Failed to fetch project files');
+    }
+  },
+
+
+
+  // services/projectServices.js
+getMilestones: async (projectId) => {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_URL}/projects/${projectId}/milestones`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) throw await parseError(response);
+  return await response.json();
+},
+
+  // Add Milestone
+  addMilestone: async (projectId, milestoneData) => {
+    const token = localStorage.getItem('token');
+    // Add validation
+  if (!projectId) {
+    throw new Error('Project ID is required');
+  }
+    try {
+      const response = await fetch(`${API_URL}/projects/${projectId}/milestones`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(milestoneData)
+      });
+
+      if (!response.ok) throw await parseError(response);
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding milestone:', error);
+      throw new Error(error.message || 'Failed to add milestone');
+    }
+  },
+
+  // Toggle Milestone Completion
+  toggleMilestone: async (projectId, milestoneId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(
+        `${API_URL}/projects/${projectId}/milestones/${milestoneId}/toggle`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (!response.ok) throw await parseError(response);
+      return await response.json();
+    } catch (error) {
+      console.error('Error toggling milestone:', error);
+      throw new Error(error.message || 'Failed to toggle milestone');
+    }
+  },
+
+  // Delete Milestone
+  deleteMilestone: async (projectId, milestoneId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(
+        `${API_URL}/projects/${projectId}/milestones/${milestoneId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (!response.ok) throw await parseError(response);
+      return true;
+    } catch (error) {
+      console.error('Error deleting milestone:', error);
+      throw new Error(error.message || 'Failed to delete milestone');
     }
   }
 };
