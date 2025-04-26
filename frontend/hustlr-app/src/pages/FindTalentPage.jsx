@@ -6,7 +6,7 @@ function FindTalentPage() {
   const [freelancers, setFreelancers] = useState([
     {
       id: 1,
-      name: "Alex Johnson",
+      name: "Pritam Ningnaik",
       title: "Senior Frontend Developer",
       description: "Specialized in building responsive web applications with React and TypeScript. 5+ years of experience working with startups and enterprises.",
       skills: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Redux"],
@@ -21,7 +21,7 @@ function FindTalentPage() {
     },
     {
       id: 2,
-      name: "Sarah Williams",
+      name: "Chinmayee Sadalgekar",
       title: "UI/UX Designer",
       description: "Passionate about creating intuitive user experiences. Expert in user research, wireframing, and prototyping.",
       skills: ["Figma", "Adobe XD", "User Research", "Prototyping", "UI Design"],
@@ -36,7 +36,7 @@ function FindTalentPage() {
     },
     {
       id: 3,
-      name: "Michael Chen",
+      name: "Ojas Patrikar",
       title: "Full Stack Developer",
       description: "Building scalable web applications with Node.js and React. Experience with AWS and database optimization.",
       skills: ["Node.js", "React", "AWS", "MongoDB", "PostgreSQL"],
@@ -51,7 +51,7 @@ function FindTalentPage() {
     },
     {
       id: 4,
-      name: "Emma Garcia",
+      name: "Radhika Lakhani",
       title: "Content Writer & SEO Specialist",
       description: "Tech-savvy writer with expertise in creating engaging content for SaaS and IT companies.",
       skills: ["Content Writing", "SEO", "Blogging", "Technical Writing", "Copywriting"],
@@ -66,7 +66,7 @@ function FindTalentPage() {
     },
     {
       id: 5,
-      name: "David Kim",
+      name: "Shreyash Narvekar",
       title: "DevOps Engineer",
       description: "Helping companies build robust CI/CD pipelines and cloud infrastructure.",
       skills: ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
@@ -81,7 +81,7 @@ function FindTalentPage() {
     },
     {
       id: 6,
-      name: "Priya Patel",
+      name: "Shravani Sawant",
       title: "Mobile App Developer",
       description: "Building beautiful cross-platform mobile applications with React Native and Flutter.",
       skills: ["React Native", "Flutter", "iOS", "Android", "Firebase"],
