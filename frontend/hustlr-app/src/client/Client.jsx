@@ -1,18 +1,19 @@
 import {  Route, Routes } from "react-router-dom";
 import Dashboard_Layout  from "./Dashboard_Layout.jsx";
-import ProjectManagement from "./ProjectManagement";
+// import ProjectManagement from "./ProjectManagement";
 import MessagingSystem from "./MessagingSystem";
 import PaymentsTransactions from "./Payment-transactions";
 import AccountSettings from "./AccountSettings";
 import DashboardOverview from "./Dashboard_Overview.jsx";
 import Analytics from "./Analytics.jsx";
+import C_ProjectManagement from "./ProjectManagement";
 
  function Client() {
   return (
     <Routes >
         <Route path="/" element={<Dashboard_Layout />}>
           <Route index element={<DashboardOverview />} />
-          <Route path="projects" element={<ProjectManagement />} />
+          <Route path="projects" element={<C_ProjectManagement />} />
           <Route path="messages" element={<MessagingSystem />} />
           <Route path="payments" element={<PaymentsTransactions />} />
           <Route path="settings" element={<AccountSettings />} />

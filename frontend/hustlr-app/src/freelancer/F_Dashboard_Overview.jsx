@@ -1,4 +1,5 @@
 import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageSquare, PlusCircle, FileText, User } from "lucide-react"
+import { Link } from "react-router-dom"
 
 function FreelancerDashboardOverview() {
   const stats = [
@@ -140,10 +141,10 @@ function FreelancerDashboardOverview() {
           </div>
           <div className="p-4">
             <div className="space-y-4">
-              <button className="w-full py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 font-medium flex items-center justify-center">
+              <Link to="/findwork" className="w-full py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 font-medium flex items-center justify-center">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Find New Projects
-              </button>
+              </Link>
               {activeProjects.map((project) => (
                 <div key={project.id} className="flex flex-col space-y-2 rounded-lg shadow-sm p-3">
                   <div className="flex items-center justify-between">
