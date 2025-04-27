@@ -8,8 +8,8 @@ import clientRoutes from './routes/clientRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
-import findTalentRoutes from './routes/findtalentRoute.js';
-
+import freelancerRoutes from "./routes/freelancerRoutes.js";
+import freelancersRouter from "./routes/freelancers.js";
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
@@ -37,12 +37,12 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/client-profile', clientRoutes);
-app.use('/api/freelancer-profile', FreelancerRoutes);
 app.use('/api/project', projectRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/freelancers', findTalentRoutes);
+app.use('/api/freelancer-profile', freelancerRoutes);
 
+app.use("/api", freelancersRouter);
 // Static files - for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

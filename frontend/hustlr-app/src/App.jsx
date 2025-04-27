@@ -45,6 +45,7 @@ function App() {
           <Route path='/freelancer_level' element={<FreelancerProfileBuilder />} />
           <Route path="/freelancer_profile" element={<FreelancerProfile />} />
           <Route path='/client_level' element={<ClientProfileBuilder />} />
+
         </Routes>
       </div>
       <Footer />
