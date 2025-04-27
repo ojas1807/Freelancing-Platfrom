@@ -10,10 +10,15 @@ import freelancerRoutes from "./routes/freelancerRoutes.js";
 import { fileURLToPath } from "url";
 import projectRoutes from "./routes/projectRoutes.js";
 import path from "path";
+import chatRoutes from "./routes/chatRoutes.js"; // Chat routes
+import messageRoutes from "./routes/messageRoutes.js"; // Message routes
+import userRoutes from "./routes/userRoutes.js"; // User routes
+
 
 dotenv.config();
 // Initialize app
 const app = express();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -33,6 +38,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/client-profile", clientRoutes); 
 app.use("/api/freelancer-profile", freelancerRoutes);
 app.use("/api/project", projectRoutes); // Project management routes
+app.use("/api/chats", chatRoutes); // Chat routes
+app.use("/api/messages", messageRoutes); // Message routes
+app.use('/api/users', userRoutes); // User routes
 // Static files - for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Create uploads directory if it doesn't exist
