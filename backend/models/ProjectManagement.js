@@ -61,6 +61,30 @@ const ProjectSchema = new mongoose.Schema(
         content: String,
         timestamp: { type: Date, default: Date.now }
       }
+    ],
+    milestones: [
+      {
+        name: {
+          type: String,
+          required: true,
+          trim: true
+        },
+        dueDate: {
+          type: Date,
+          required: true
+        },
+        completed: {
+          type: Boolean,
+          default: false
+        },
+        completedDate: {
+          type: Date
+        },
+        description: {
+          type: String,
+          trim: true
+        }
+      }
     ]
   },
   { timestamps: true }
