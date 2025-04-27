@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const talentSchema = new mongoose.Schema({
+const freelancerSchema = new mongoose.Schema({
   name: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -11,10 +11,10 @@ const talentSchema = new mongoose.Schema({
   availability: { type: String, required: true },
   rating: { type: Number, required: true },
   projects: { type: Number, required: true },
-  isBookmarked: { type: Boolean, required: true },
-  profilePic: { type: String, required: true }
-});
+  isBookmarked: { type: Boolean, default: false },
+  profilePic: { type: String, required: true },
+}, { timestamps: true });
 
-const Talent = mongoose.model('Talent', talentSchema);
+const Freelancer = mongoose.model('Freelancer', freelancerSchema);
 
-export default Talent;
+export default Freelancer;
