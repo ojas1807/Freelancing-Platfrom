@@ -31,6 +31,7 @@ export const createChat = async (req, res) => {
   const { userIds } = req.body; // Participants' IDs
 
   try {
+    
     const chat = await Chat.create({
       users: [...userIds, req.user.id],
     });
@@ -40,3 +41,4 @@ export const createChat = async (req, res) => {
     res.status(500).json({ message: "Failed to create chat" });
   }
 };
+

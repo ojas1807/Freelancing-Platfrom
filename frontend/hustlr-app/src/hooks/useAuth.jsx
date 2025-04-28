@@ -17,12 +17,18 @@ const useAuth = () => {
   const login = (userData, token) => {
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
+    localStorage.setItem("userName", userData.name);
+    localStorage.setItem("userID", userData.id);
+    localStorage.setItem("userRole", userData.role);
     setUser(userData); // Update state
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userID");
+    localStorage.removeItem("userRole");
     setUser(null);
   };
 
