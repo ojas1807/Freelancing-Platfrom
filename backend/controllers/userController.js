@@ -29,3 +29,13 @@ export const getUserById = async (req, res) => {
       res.status(500).json({ message: "Failed to fetch user", error: error.message });
     }
   };
+
+// Get all freelancers
+export const getFreelancers = async (req, res) => {
+  try {
+    const freelancers = await User.find({ role: 'freelancer' })
+    res.json(freelancers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -8,231 +8,270 @@ import {
   Clock,
   MapPin,
   ChevronDown,
+  CheckCircle,
 } from "lucide-react";
+import PropTypes from "prop-types";
+import {JobServices} from "../services/projectServices"; // Import your job services
+import Breadcrumb from "../Breadcrumb";
 
 function FindWorkPage() {
-  // Sample job data
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      title: "Frontend Developer for E-commerce Website",
-      description:
-        "Looking for an experienced frontend developer to build a responsive e-commerce website with modern UI/UX design. Must have experience with React and payment gateway integration.",
-      category: "Web Development",
-      skills: ["React", "JavaScript", "CSS", "Tailwind", "Redux"],
-      budget: "$3,000 - $5,000",
-      experience: "Intermediate",
-      location: "Remote",
-      postedDate: "2 days ago",
-      proposals: 12,
-      isBookmarked: false,
-      rating: 4.8,
-      client: {
-        name: "TechSolutions Inc.",
-        country: "United States",
-        jobsPosted: 24,
-        memberSince: "Jan 2020",
-      },
-    },
-    {
-      id: 2,
-      title: "Mobile App UI/UX Designer",
-      description:
-        "Need a talented UI/UX designer for a fitness tracking mobile application. Experience with Figma and mobile design patterns required. Portfolio required for consideration.",
-      category: "UI/UX Design",
-      skills: ["Figma", "UI/UX", "Mobile Design", "Prototyping", "Adobe XD"],
-      budget: "$1,500 - $3,000",
-      experience: "Expert",
-      location: "Remote",
-      postedDate: "5 hours ago",
-      proposals: 8,
-      isBookmarked: true,
-      rating: 4.9,
-      client: {
-        name: "HealthTrack",
-        country: "Canada",
-        jobsPosted: 8,
-        memberSince: "Mar 2021",
-      },
-    },
-    {
-      id: 3,
-      title: "WordPress Website Migration",
-      description:
-        "Looking for someone to migrate our WordPress website to a new hosting provider and optimize performance. Must have experience with cPanel and WP-CLI.",
-      category: "WordPress",
-      skills: ["WordPress", "PHP", "MySQL", "Server Management", "cPanel"],
-      budget: "$500 - $1,000",
-      experience: "Beginner",
-      location: "Remote",
-      postedDate: "1 week ago",
-      proposals: 24,
-      isBookmarked: false,
-      rating: 4.5,
-      client: {
-        name: "SmallBiz Marketing",
-        country: "United Kingdom",
-        jobsPosted: 15,
-        memberSince: "Nov 2019",
-      },
-    },
-    {
-      id: 4,
-      title: "Full-Stack Developer for SaaS Platform",
-      description:
-        "We're building a SaaS platform for project management and need a full-stack developer to join our team for a 3-month contract. Experience with cloud services preferred.",
-      category: "Full-Stack Development",
-      skills: ["React", "Node.js", "MongoDB", "Express", "AWS"],
-      budget: "$8,000 - $12,000",
-      experience: "Expert",
-      location: "Remote",
-      postedDate: "3 days ago",
-      proposals: 18,
-      isBookmarked: false,
-      rating: 4.7,
-      client: {
-        name: "SaaS Innovations",
-        country: "Germany",
-        jobsPosted: 32,
-        memberSince: "Feb 2018",
-      },
-    },
-    {
-      id: 5,
-      title: "Logo and Brand Identity Design",
-      description:
-        "Startup looking for a creative designer to create our logo and brand identity. We're in the tech education space. Looking for modern, clean designs with a tech feel.",
-      category: "Graphic Design",
-      skills: [
-        "Logo Design",
-        "Branding",
-        "Illustrator",
-        "Photoshop",
-        "Typography",
-      ],
-      budget: "$1,000 - $2,000",
-      experience: "Intermediate",
-      location: "Remote",
-      postedDate: "4 days ago",
-      proposals: 32,
-      isBookmarked: false,
-      rating: 4.6,
-      client: {
-        name: "EduTech Startup",
-        country: "Australia",
-        jobsPosted: 3,
-        memberSince: "Jun 2022",
-      },
-    },
-    {
-      id: 6,
-      title: "Database Optimization Specialist",
-      description:
-        "Need an expert to optimize our PostgreSQL database for better performance and scalability. Must have experience with query optimization and indexing strategies.",
-      category: "Database Administration",
-      skills: [
-        "PostgreSQL",
-        "Database Optimization",
-        "SQL",
-        "Performance Tuning",
-        "Indexing",
-      ],
-      budget: "$2,000 - $4,000",
-      experience: "Expert",
-      location: "Remote",
-      postedDate: "1 day ago",
-      proposals: 7,
-      isBookmarked: false,
-      rating: 4.9,
-      client: {
-        name: "DataSystems Corp",
-        country: "Singapore",
-        jobsPosted: 45,
-        memberSince: "Sep 2017",
-      },
-    },
-    {
-      id: 7,
-      title: "Content Writer for Tech Blog",
-      description:
-        "Looking for a skilled content writer to create articles about web development trends. Must have technical knowledge and ability to explain complex concepts simply.",
-      category: "Content Writing",
-      skills: [
-        "Content Writing",
-        "Technical Writing",
-        "SEO",
-        "Blogging",
-        "Research",
-      ],
-      budget: "$800 - $1,500",
-      experience: "Intermediate",
-      location: "Remote",
-      postedDate: "Just now",
-      proposals: 3,
-      isBookmarked: false,
-      rating: 4.4,
-      client: {
-        name: "DevInsights",
-        country: "India",
-        jobsPosted: 12,
-        memberSince: "Apr 2021",
-      },
-    },
-    {
-      id: 8,
-      title: "Social Media Manager",
-      description:
-        "Need a social media manager to handle our Instagram and LinkedIn accounts. Must have experience growing B2B tech audiences and creating engaging content.",
-      category: "Social Media Marketing",
-      skills: [
-        "Social Media",
-        "Content Creation",
-        "Community Management",
-        "Analytics",
-        "Scheduling",
-      ],
-      budget: "$1,200 - $2,500",
-      experience: "Intermediate",
-      location: "Remote",
-      postedDate: "8 hours ago",
-      proposals: 15,
-      isBookmarked: true,
-      rating: 4.7,
-      client: {
-        name: "GrowthHack Marketing",
-        country: "United States",
-        jobsPosted: 28,
-        memberSince: "May 2020",
-      },
-    },
-  ]);
+  // State for jobs and filtered jobs
+  const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [applicationStatus, setApplicationStatus] = useState({
+    submitting: false,
+    success: false,
+    error: null,
+  });
+  const [appliedJobIds, setAppliedJobIds] = useState([]);
+
+  // Handle job application submission
+  const handleApplyForJob = async (applicationData) => {
+    setApplicationStatus({
+      submitting: true,
+      success: false,
+      error: null,
+    });
+
+    try {
+      // Submit proposal using ProjectServices
+      await JobServices.submitProposal(selectedJob.id, {
+        message: applicationData.message,
+        bid: parseFloat(applicationData.bid),
+        timeline: applicationData.timeline,
+      });
+
+      // Track the applied job ID
+    setAppliedJobIds(prev => [...prev, selectedJob.id]);
+
+      setApplicationStatus({
+        submitting: false,
+        success: true,
+        error: null,
+      });
+
+      // Refresh jobs list to reflect the new proposal
+      const updatedJobs = await JobServices.getAvailableJobs();
+      setJobs(updatedJobs);
+
+      // Close dialog after 1.5 seconds
+      setTimeout(() => {
+        setShowApplicationDialog(false);
+        setApplicationStatus({
+          submitting: false,
+          success: false,
+          error: null,
+        });
+      }, 1500);
+    } catch (err) {
+      console.error("Proposal submission error:", err);
+      setApplicationStatus({
+        submitting: false,
+        success: false,
+        error: err.message || "Failed to submit proposal",
+      });
+    }
+  };
+
+  // Dialog component
+  const ApplicationDialog = ({ isOpen, onClose, job }) => {
+    if (!isOpen || !job) return null;
+
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold">Apply for {job.name}</h2>
+              <p className="text-sm text-gray-500">
+                Submit your proposal for this job opportunity.
+              </p>
+            </div>
+
+            {applicationStatus.success ? (
+              <div className="text-center py-8">
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900">
+                  Application Submitted!
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Your proposal has been sent to the client.
+                </p>
+              </div>
+            ) : (
+              <>
+                {applicationStatus.error && (
+                  <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
+                    {applicationStatus.error}
+                  </div>
+                )}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="proposal-message"
+                      className="text-sm font-medium"
+                    >
+                      Proposal Message
+                    </label>
+                    <textarea
+                      id="proposal-message"
+                      placeholder="Explain why you're the best fit for this project..."
+                      rows={4}
+                      className="w-full py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                    ></textarea>
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="proposal-bid"
+                      className="text-sm font-medium"
+                    >
+                      Your Bid
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">$</span>
+                      <input
+                        id="proposal-bid"
+                        type="number"
+                        placeholder="Amount"
+                        min="1"
+                        step="0.01"
+                        className="w-full py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="proposal-timeline"
+                      className="text-sm font-medium"
+                    >
+                      Estimated Timeline
+                    </label>
+                    <input
+                      id="proposal-timeline"
+                      placeholder="E.g., 2 weeks, 1 month"
+                      className="w-full py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="proposal-attachments"
+                      className="text-sm font-medium"
+                    >
+                      Attachments (Optional)
+                    </label>
+                    <input
+                      id="proposal-attachments"
+                      type="file"
+                      className="w-full py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    className="py-2 px-4 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none"
+                    onClick={onClose}
+                    disabled={applicationStatus.submitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none disabled:opacity-70"
+                    onClick={() => {
+                      const message =
+                        document.getElementById("proposal-message").value;
+                      const bid = document.getElementById("proposal-bid").value;
+                      const timeline =
+                        document.getElementById("proposal-timeline").value;
+
+                      if (!message || !bid || !timeline) {
+                        setApplicationStatus({
+                          submitting: false,
+                          success: false,
+                          error: "Please fill all required fields",
+                        });
+                        return;
+                      }
+
+                      handleApplyForJob({
+                        message,
+                        bid,
+                        timeline,
+                      });
+                    }}
+                    disabled={applicationStatus.submitting}
+                  >
+                    {applicationStatus.submitting
+                      ? "Submitting..."
+                      : "Submit Proposal"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  ApplicationDialog.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    job: PropTypes.object,
+  };
+
 
   // Filter states
-  // Filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedExperience, setSelectedExperience] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
-  const [budgetRange, setBudgetRange] = useState([500, 12000]);
-  const [filteredJobs, setFilteredJobs] = useState([...jobs]); // Make a copy of jobs array
+  const [budgetRange, setBudgetRange] = useState([500, 2000]);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(3); // Number of jobs to show per page
+  const [sortBy, setSortBy] = useState("newest"); // Default sorting option
+  // Fetch jobs from API
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        setLoading(true);
+        const jobsData = await JobServices.getAvailableJobs();
+        // console.log("Jobs Data:", jobsData);
+        setJobs(jobsData || []);
+        setFilteredJobs(jobsData || []);
+        setLoading(false);
+        
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+        setError(err.message || "Failed to load jobs");
+        setLoading(false);
+      }
+    }
+
+    fetchJobs();
+  }, []);
 
   // Get current jobs for the current page
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  // console.log("Current Jobs:", currentJobs);
 
-  // All available skills from jobs
+  // Extract all unique skills from jobs
   const allSkills = Array.from(
-    new Set(jobs.flatMap((job) => job.skills))
-  ).sort();
-
-  // All available categories from jobs
-  const allCategories = Array.from(
-    new Set(jobs.map((job) => job.category))
+    new Set(jobs.flatMap(job => job.skills.split(',').map(skill => skill.trim())))
   ).sort();
 
   useEffect(() => {
@@ -242,75 +281,80 @@ function FindWorkPage() {
   // Apply filters
   useEffect(() => {
     let result = [...jobs];
+    // console.log("Jobs:", jobs);
+    // console.log("Filtered Jobs:", filteredJobs);
 
     // Search query filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (job) =>
-          job.title.toLowerCase().includes(query) ||
-          job.description.toLowerCase().includes(query) ||
-          job.skills.some((skill) => skill.toLowerCase().includes(query))
-      );
-    }
-
-    // Category filter
-    if (selectedCategory) {
-      result = result.filter((job) => job.category === selectedCategory);
-    }
-
-    // Experience filter
-    if (selectedExperience) {
-      result = result.filter((job) => job.experience === selectedExperience);
+      const query = searchQuery.trim().toLowerCase();
+      result = result.filter((job) => {
+        const jobName = job.name ? job.name.toLowerCase() : "";
+        const jobDescription = job.description ? job.description.toLowerCase() : "";
+        const jobSkills = job.skills ? job.skills.toLowerCase() : "";
+    
+        return (
+          jobName.includes(query) ||
+          jobDescription.includes(query) ||
+          jobSkills.includes(query)
+        );
+      });
     }
 
     // Skills filter
     if (selectedSkills.length > 0) {
       result = result.filter((job) =>
-        selectedSkills.some((skill) => job.skills.includes(skill))
+        selectedSkills.some(skill => 
+          job.skills.split(',').map(s => s.trim()).includes(skill)
+        )
       );
     }
 
     // Budget range filter
-    result = result.filter((job) => {
-      const jobBudget = job.budget.replace(/[^\d,-]/g, ""); // Better regex to remove all non-digit characters except comma and dash
-      const [minStr, maxStr] = jobBudget.split("-").map((str) => str.trim());
+  result = result.filter((job) => {
+    const jobBudget = job.budget.replace(/[^\d,-]/g, ""); // Remove non-digit characters except comma and dash
+    const [minStr, maxStr] = jobBudget.split("-").map((str) => str.trim());
 
-      const min = parseInt(minStr.replace(/,/g, "")) || 0;
-      const max = parseInt(maxStr?.replace(/,/g, "") || min); // Handle cases where there's no max
+    const min = parseInt(minStr.replace(/,/g, "")) || 0;
+    const max = parseInt(maxStr?.replace(/,/g, "") || min); // Handle cases where there's no max
 
-      return (
-        (min >= budgetRange[0] && min <= budgetRange[1]) ||
-        (max >= budgetRange[0] && max <= budgetRange[1])
-      );
+    return (
+      (min >= budgetRange[0] && min <= budgetRange[1]) ||
+      (max >= budgetRange[0] && max <= budgetRange[1])
+    );
+  });
+
+    // Sorting logic
+  if (sortBy === "newest") {
+    result.sort((a, b) => new Date(b.posted) - new Date(a.posted));
+  } else if (sortBy === "oldest") {
+    result.sort((a, b) => new Date(a.posted) - new Date(b.posted));
+  } else if (sortBy === "budget-high") {
+    result.sort((a, b) => {
+      const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
+      const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
+      return budgetB - budgetA;
     });
+  } else if (sortBy === "budget-low") {
+    result.sort((a, b) => {
+      const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
+      const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
+      return budgetA - budgetB;
+    });
+  }
 
     setFilteredJobs(result);
-  }, [
-    searchQuery,
-    selectedCategory,
-    selectedExperience,
-    selectedSkills,
-    budgetRange,
-    jobs,
-  ]);
+  }, [searchQuery, selectedSkills, budgetRange, jobs, sortBy, currentPage]);
 
   // Clear all filters
   const clearFilters = () => {
     setSearchQuery("");
-    setSelectedCategory("");
-    setSelectedExperience("");
     setSelectedSkills([]);
-    setBudgetRange([500, 12000]);
+    setBudgetRange([500, 2000]);
   };
 
-  // Toggle bookmark
+  // Toggle bookmark (if you want to implement this later)
   const toggleBookmark = (id) => {
-    setJobs(
-      jobs.map((job) =>
-        job.id === id ? { ...job, isBookmarked: !job.isBookmarked } : job
-      )
-    );
+    // Implement bookmark functionality if needed
   };
 
   // Toggle skill selection
@@ -327,8 +371,48 @@ function FindWorkPage() {
     return `$${value.toLocaleString()}`;
   };
 
+  // Extract min and max budget from job
+  const getBudgetValues = (budgetStr) => {
+    const nums = budgetStr.replace(/[^\d,-]/g, "").split('-').map(num => parseInt(num.replace(/,/g, "")));
+    return {
+      min: nums[0] || 0,
+      max: nums[1] || nums[0] || 0
+    };
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#422AD5]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-center justify-center p-8 text-center">
+          <div className="rounded-full bg-red-100 p-3 mb-4">
+            <X className="h-6 w-6 text-red-500" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">Error loading jobs</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button
+            className="rounded-md border border-gray-300 py-2 px-4 text-sm font-medium hover:bg-gray-50"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
+      <Breadcrumb />
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-col gap-2">
@@ -368,11 +452,9 @@ function FindWorkPage() {
               </button>
               <button
                 className={`hidden md:flex items-center gap-2 rounded-md py-2 px-4 text-sm font-medium ${
-                  selectedCategory ||
-                  selectedExperience ||
                   selectedSkills.length > 0 ||
                   budgetRange[0] !== 500 ||
-                  budgetRange[1] !== 12000
+                  budgetRange[1] !== 2000
                     ? "bg-[#422AD5] text-white hover:bg-[#3620b1]"
                     : "border border-gray-300 hover:bg-gray-50"
                 }`}
@@ -385,32 +467,8 @@ function FindWorkPage() {
           </div>
 
           {/* Applied Filters */}
-          {(selectedCategory ||
-            selectedExperience ||
-            selectedSkills.length > 0) && (
+          {selectedSkills.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {selectedCategory && (
-                <span className="flex items-center gap-1 pl-2 pr-1 py-1 rounded-full bg-gray-100 text-sm">
-                  Category: {selectedCategory}
-                  <button
-                    className="ml-1 rounded-full hover:bg-gray-200 p-0.5"
-                    onClick={() => setSelectedCategory("")}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
-              {selectedExperience && (
-                <span className="flex items-center gap-1 pl-2 pr-1 py-1 rounded-full bg-gray-100 text-sm">
-                  Experience: {selectedExperience}
-                  <button
-                    className="ml-1 rounded-full hover:bg-gray-200 p-0.5"
-                    onClick={() => setSelectedExperience("")}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
               {selectedSkills.map((skill) => (
                 <span
                   key={skill}
@@ -425,9 +483,7 @@ function FindWorkPage() {
                   </button>
                 </span>
               ))}
-              {(selectedCategory ||
-                selectedExperience ||
-                selectedSkills.length > 0) && (
+              {selectedSkills.length > 0 && (
                 <button
                   className="h-7 px-2 text-sm text-[#422AD5] hover:bg-gray-100 rounded-md"
                   onClick={clearFilters}
@@ -455,48 +511,6 @@ function FindWorkPage() {
                 </div>
               </div>
               <div className="p-6 space-y-6">
-                {/* Category Filter */}
-                <div className="space-y-2">
-                  <h3 className="font-medium">Category</h3>
-                  <div className="relative">
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
-                    >
-                      <option value="">Select category</option>
-                      {allCategories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Experience Level Filter */}
-                <div className="space-y-2">
-                  <h3 className="font-medium">Experience Level</h3>
-                  <div className="relative">
-                    <select
-                      value={selectedExperience}
-                      onChange={(e) => setSelectedExperience(e.target.value)}
-                      className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
-                    >
-                      <option value="">Select experience</option>
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Expert">Expert</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Budget Range Filter */}
                 <div className="space-y-4">
                   <h3 className="font-medium">Budget Range</h3>
@@ -504,8 +518,8 @@ function FindWorkPage() {
                     <input
                       type="range"
                       min="500"
-                      max="12000"
-                      step="500"
+                      max="2000"
+                      step="100"
                       value={budgetRange[0]}
                       onChange={(e) =>
                         setBudgetRange([Number(e.target.value), budgetRange[1]])
@@ -515,8 +529,8 @@ function FindWorkPage() {
                     <input
                       type="range"
                       min="500"
-                      max="12000"
-                      step="500"
+                      max="2000"
+                      step="100"
                       value={budgetRange[1]}
                       onChange={(e) =>
                         setBudgetRange([budgetRange[0], Number(e.target.value)])
@@ -576,48 +590,6 @@ function FindWorkPage() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Category Filter */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Category</h3>
-                    <div className="relative">
-                      <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
-                      >
-                        <option value="">All Categories</option>
-                        {allCategories.map((category) => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Experience Level Filter */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Experience Level</h3>
-                    <div className="relative">
-                      <select
-                        value={selectedExperience}
-                        onChange={(e) => setSelectedExperience(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
-                      >
-                        <option value="all">All Levels</option>
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Expert">Expert</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Budget Range Filter */}
                   <div className="space-y-4">
                     <h3 className="font-medium">Budget Range</h3>
@@ -625,8 +597,8 @@ function FindWorkPage() {
                       <input
                         type="range"
                         min="500"
-                        max="12000"
-                        step="500"
+                        max="2000"
+                        step="100"
                         value={budgetRange[0]}
                         onChange={(e) =>
                           setBudgetRange([
@@ -639,8 +611,8 @@ function FindWorkPage() {
                       <input
                         type="range"
                         min="500"
-                        max="12000"
-                        step="500"
+                        max="2000"
+                        step="100"
                         value={budgetRange[1]}
                         onChange={(e) =>
                           setBudgetRange([
@@ -716,7 +688,8 @@ function FindWorkPage() {
               </h2>
               <div className="relative">
                 <select
-                  defaultValue="newest"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
                   className="w-[180px] rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
                 >
                   <option value="newest">Newest First</option>
@@ -748,107 +721,133 @@ function FindWorkPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {currentJobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                  >
-                    <div className="p-6 pb-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-xl font-semibold hover:text-[#422AD5] transition-colors">
-                            <a href="#">{job.title}</a>
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                            <span className="rounded-sm border border-gray-300 px-2 py-0.5 font-normal">
-                              {job.category}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {job.postedDate}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {job.location}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          className={`p-1 rounded-md hover:bg-gray-100 ${
-                            job.isBookmarked
-                              ? "text-[#422AD5]"
-                              : "text-gray-400"
-                          }`}
-                          onClick={() => toggleBookmark(job.id)}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill={job.isBookmarked ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-5 w-5"
-                          >
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="px-6 pb-3">
-                      <p className="text-gray-500 line-clamp-2 mb-4">
-                        {job.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {job.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="rounded-sm border border-gray-300 px-2 py-0.5 text-sm font-normal bg-gray-50"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center gap-2">
-                          <div className="rounded-full bg-green-100 p-1.5">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                          </div>
+                {currentJobs.map((job) => {
+                  const budgetValues = getBudgetValues(job.budget);
+                  
+                  return (
+                    <div
+                      key={job.id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      <div className="p-6 pb-3">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <p className="text-sm font-medium">{job.budget}</p>
-                            <p className="text-xs text-gray-500">Budget</p>
+                            <h3 className="text-xl font-semibold hover:text-[#422AD5] transition-colors">
+                              <a href="#">{job.name}</a>
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {job.posted}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                Remote
+                              </span>
+                            </div>
                           </div>
+                          <button
+                            className={`p-1 rounded-md hover:bg-gray-100 text-gray-400`}
+                            onClick={() => toggleBookmark(job.id)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-5 w-5"
+                            >
+                              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                            </svg>
+                          </button>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="rounded-full bg-blue-100 p-1.5">
-                            <Star className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="px-6 pb-3">
+                        <p className="text-gray-500 line-clamp-2 mb-4">
+                          {job.description}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {job.skills.split(',').map((skill, index) => (
+                            <span
+                              key={index}
+                              className="rounded-sm border border-gray-300 px-2 py-0.5 text-sm font-normal bg-gray-50"
+                            >
+                              {skill.trim()}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex items-center gap-2">
+                            <div className="rounded-full bg-green-100 p-1.5">
+                              <DollarSign className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{job.budget}</p>
+                              <p className="text-xs text-gray-500">Budget</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {job.experience}
-                            </p>
-                            <p className="text-xs text-gray-500">Experience</p>
+                          <div className="flex items-center gap-2">
+                            <div className="rounded-full bg-blue-100 p-1.5">
+                              <Clock className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {job.deadline}
+                              </p>
+                              <p className="text-xs text-gray-500">Deadline</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="border-t border-gray-200"></div>
-                    <div className="flex justify-between py-3 px-6">
-                      <div className="text-sm text-gray-500">
-                        <span className="font-medium text-gray-900">
-                          {job.proposals}
-                        </span>{" "}
-                        proposals so far
+                      <div className="border-t border-gray-200"></div>
+                      <div className="flex justify-between py-3 px-6">
+                        <div className="text-sm text-gray-500">
+                          <span className="font-medium text-gray-900">
+                          {job.proposals || job.proposals === 0 ? job.proposals : "0"}
+                          </span>{" "}
+                          proposals so far
+                        </div>
+                        <button 
+  className={`py-1 px-3 rounded-md text-sm focus:outline-none ${
+    job.hasApplied || appliedJobIds.includes(job.id)
+      ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+      : "bg-primary text-white hover:bg-primary/90"
+  }`}
+  onClick={() => {
+    if (!job.hasApplied && !appliedJobIds.includes(job.id)) {
+      setSelectedJob(job);
+      setShowApplicationDialog(true);
+    }
+  }}
+  disabled={job.hasApplied || appliedJobIds.includes(job.id)}
+>
+  {job.hasApplied || appliedJobIds.includes(job.id) ? 'Applied' : 'Apply Now'}
+</button>
                       </div>
-                      <button className="rounded-md bg-[#422AD5] py-2 px-4 text-sm font-medium text-white hover:bg-[#3620b1]">
-                        Apply Now
-                      </button>
                     </div>
-                  </div>
-                ))}
+                    
+                  );
+                  
+                })}
+
               </div>
             )}
+            {/* Dialog for applying to a job */}
+      <ApplicationDialog
+        isOpen={showApplicationDialog}
+        onClose={() => {
+          setShowApplicationDialog(false);
+          setApplicationStatus({
+            submitting: false,
+            success: false,
+            error: null,
+          });
+        }}
+        job={selectedJob}
+      />
 
             {/* Pagination */}
             {filteredJobs.length > jobsPerPage && (

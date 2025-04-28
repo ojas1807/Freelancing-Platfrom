@@ -11,10 +11,9 @@ const Navbar = () => {
 
   // Check authentication status when component mounts or when location changes
   useEffect(() => {
-    // Check for token in localStorage
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
-    
+
     if (token && userData) {
       setIsLoggedIn(true);
       setUser(JSON.parse(userData));
@@ -22,24 +21,23 @@ const Navbar = () => {
       setIsLoggedIn(false);
       setUser(null);
     }
-  }, [location]); // Re-run when location changes
+  }, [location]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const handleLogout = () => {
-    // Clear authentication data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    
-    // Update state
     setIsLoggedIn(false);
     setUser(null);
-    
-    // Redirect to home page and refresh
-    navigate('/');
+    navigate("/");
     window.location.reload();
+  };
+
+  const handleRestrictedAccess = () => {
+    alert("Please log in first to access this feature.");
   };
 
   return (
@@ -51,28 +49,60 @@ const Navbar = () => {
         <Link to="/" className="btn btn-ghost normal-case text-3xl">Hustlr.</Link>
       </div>
       <div className="navbar-center hidden lg:flex">
-      <ul className="menu menu-horizontal px-1 gap-2">
+        <ul className="menu menu-horizontal px-1 gap-2">
+          {/* Show "Find Work" only for freelancers */}
+          {isLoggedIn && user?.role === "freelancer" && (
+            <li>
+              <Link
+                to="/findwork"
+                className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                <Briefcase className="w-4 h-4" />
+                <span className="font-medium">Find Work</span>
+              </Link>
+            </li>
+          )}
+
+          {/* Show "Find Talent" only for clients */}
+          {isLoggedIn && user?.role === "client" && (
+            <li>
+              <Link
+                to="/findtalent"
+                className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                <Search className="w-4 h-4" />
+                <span className="font-medium">Find Talent</span>
+              </Link>
+            </li>
+          )}
+
+          {/* Disable buttons for unauthenticated users */}
+          {!isLoggedIn && (
+            <>
+              <li>
+                <button
+                  onClick={handleRestrictedAccess}
+                  className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span className="font-medium">Find Work</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleRestrictedAccess}
+                  className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                >
+                  <Search className="w-4 h-4" />
+                  <span className="font-medium">Find Talent</span>
+                </button>
+              </li>
+            </>
+          )}
+
           <li>
-            <Link 
-              to="/findwork" 
-              className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-            >
-              <Briefcase className="w-4 h-4" />
-              <span className="font-medium">Find Work</span>
-            </Link>
-          </li>
-          <li>
-            <Link 
-              to="/findtalent" 
-              className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-            >
-              <Search className="w-4 h-4" />
-              <span className="font-medium">Find Talent</span>
-            </Link>
-          </li>
-          <li>
-            <Link 
-              to="/whyus" 
+            <Link
+              to="/whyus"
               className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <Star className="w-4 h-4" />
@@ -105,8 +135,8 @@ const Navbar = () => {
       {/* Sidebar */}
       {isMenuOpen && (
         <>
-          <div 
-            className="fixed inset-0 bg-transparent bg-opacity-50 z-40" 
+          <div
+            className="fixed inset-0 bg-transparent bg-opacity-50 z-40"
             onClick={toggleMenu}
           ></div>
           <div className="fixed inset-y-0 left-0 bg-white h-full z-50 p-4 w-64 shadow-lg">
@@ -117,29 +147,55 @@ const Navbar = () => {
               </button>
             </div>
             <ul className="menu gap-1">
+              {isLoggedIn && user?.role === "freelancer" && (
+                <li>
+                  <Link
+                    to="/findwork"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                    onClick={toggleMenu}
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    Find Work
+                  </Link>
+                </li>
+              )}
+              {isLoggedIn && user?.role === "client" && (
+                <li>
+                  <Link
+                    to="/findtalent"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                    onClick={toggleMenu}
+                  >
+                    <Search className="w-4 h-4" />
+                    Find Talent
+                  </Link>
+                </li>
+              )}
+              {!isLoggedIn && (
+                <>
+                  <li>
+                    <button
+                      onClick={handleRestrictedAccess}
+                      className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      Find Work
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleRestrictedAccess}
+                      className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Search className="w-4 h-4" />
+                      Find Talent
+                    </button>
+                  </li>
+                </>
+              )}
               <li>
-                <Link 
-                  to="/findwork" 
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
-                  onClick={toggleMenu}
-                >
-                  <Briefcase className="w-4 h-4" />
-                  Find Work
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/findtalent" 
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
-                  onClick={toggleMenu}
-                >
-                  <Search className="w-4 h-4" />
-                  Find Talent
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/whyus" 
+                <Link
+                  to="/whyus"
                   className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-primary/10 hover:text-primary"
                   onClick={toggleMenu}
                 >

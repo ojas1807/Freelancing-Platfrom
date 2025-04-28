@@ -403,6 +403,7 @@ export const JobServices = {
       // 2. If response is the array directly
       return result.data?.map(job => ({
         ...job,
+        skills: job.skills || [], // Default to empty array
         proposals: job.proposals || [], // Default to empty array
         createdAt: job.createdAt || new Date().toISOString() // Default to current date
       })) || [];

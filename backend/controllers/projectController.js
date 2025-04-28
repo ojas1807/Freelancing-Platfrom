@@ -558,6 +558,8 @@ export const getAvailableJobs = async (req, res) => {
         month: 'long', 
         day: 'numeric' 
       }),
+      status: job.status,
+      skills: job.skills.join(", "),
       posted: formatTimeAgo(job.createdAt),
       client: job.client.name,
       avatar: `/api/users/${job.client._id}/avatar`
