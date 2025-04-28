@@ -13,6 +13,7 @@ import path from "path";
 import chatRoutes from "./routes/chatRoutes.js"; // Chat routes
 import messageRoutes from "./routes/messageRoutes.js"; // Message routes
 import userRoutes from "./routes/userRoutes.js"; // User routes
+import freelancerRouter from "./routes/freelancers.js"; // Freelancer routes
 
 
 dotenv.config();
@@ -41,6 +42,7 @@ app.use("/api/project", projectRoutes); // Project management routes
 app.use("/api/chats", chatRoutes); // Chat routes
 app.use("/api/messages", messageRoutes); // Message routes
 app.use('/api/users', userRoutes); // User routes
+app.use('/api', freelancerRouter); // Freelancer routes
 // Static files - for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Create uploads directory if it doesn't exist

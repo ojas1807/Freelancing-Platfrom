@@ -14,7 +14,7 @@ function MessagingSystem() {
     messagesLoading,
     sendMessage,
   } = useMessaging();
-  const currentUserId = localStorage.getItem('userId') || '';
+  const currentUserId = localStorage.getItem('userID') || '';
   const currentUserName = localStorage.getItem('userName') || 'You';
   
   const [messageText, setMessageText] = useState("");
@@ -45,7 +45,7 @@ function MessagingSystem() {
     // Handle case where chat might not have users populated
     if (!chat.users || chat.users.length === 0) return false;
     
-    const otherUser = chat.users.find(user => user._id !== localStorage.getItem('userId'));
+    const otherUser = chat.users.find(user => user._id !== currentUserId && user.name !== currentUserName);
     if (!otherUser) return false;
     
     // Add a check for name property
@@ -166,8 +166,7 @@ function MessagingSystem() {
             ) : (
               filteredChats.map((chat) => {
                 // Find the other user in the chat (not the current user)
-                const currentUserId = localStorage.getItem('userId');
-                const otherUser = chat.users?.find(user => user._id !== currentUserId);
+                const otherUser = chat.users.find(user => user._id !== currentUserId && user.name !== currentUserName);
                 if (!otherUser) return null;
                 
                 return (
@@ -231,7 +230,7 @@ function MessagingSystem() {
                     const currentChat = chats.find(c => c._id === selectedChat);
                     if (!currentChat) return null;
                     
-                    const otherUser = currentChat.users?.find(user => user._id !== localStorage.getItem('userId'));
+                    const otherUser = currentChat.users?.find(user => user._id !== localStorage.getItem('userID'));
                     if (!otherUser) return null;
                     
                     return (
