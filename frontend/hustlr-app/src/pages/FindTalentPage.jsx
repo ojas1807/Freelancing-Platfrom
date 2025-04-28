@@ -3,9 +3,11 @@ import { Search, Filter, X, DollarSign, Star, Clock, MapPin, ChevronDown } from 
 import axios from "axios";
 
 function FindTalentPage() {
-  // Freelancer data state
+  // Freelancer data states
   const [freelancers, setFreelancers] = useState([]);
+  const [recommendedFreelancers, setRecommendedFreelancers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Filter states
@@ -16,31 +18,31 @@ function FindTalentPage() {
   const [availability, setAvailability] = useState("");
   const [filteredFreelancers, setFilteredFreelancers] = useState([]);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  // Add this with your other state variables
-const [sortBy, setSortBy] = useState("rating");
+  const [sortBy, setSortBy] = useState("rating");
+  const [showRecommended, setShowRecommended] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [freelancersPerPage] = useState(4);
+  const currentUserId = localStorage.getItem("userID") || null; // Replace with actual user ID from auth context
 
-  // Fetch freelancers on component mount
+  // Fetch all freelancers on component mount
   useEffect(() => {
     const fetchFreelancers = async () => {
       try {
         setLoading(true);
-        // Update with your actual API URL
         const response = await axios.get('http://localhost:5000/api/freelancers');
-        console.log("API Response:", response.data);
         
-        // Add default values for missing fields to ensure component doesn't break
-        const processedData = Array.isArray(response.data) ? response.data.map(freelancer => ({
+        const processedData = response.data.map(freelancer => ({
           ...freelancer,
-          name: freelancer.name || `User ${freelancer.userId.slice(-4)}`,
-          bio: freelancer.description || `Experienced ${freelancer.profileTitle || 'freelancer'} specializing in ${freelancer.specialties?.join(', ') || freelancer.category}`,
-          hourlyRate: freelancer.hourlyRate || Math.floor(Math.random() * 50) + 30, // Random rate if not provided
-          rating: freelancer.rating || (Math.random() * 2 + 3).toFixed(1), // Random rating between 3-5
-          projects: freelancer.completedProjects || Math.floor(Math.random() * 5) + 1 // Random project count
-        })) : [];
+          name: freelancer.name || `User ${freelancer.userId?.slice(-4) || '0000'}`,
+          bio: freelancer.description || `Experienced ${freelancer.profileTitle || 'freelancer'}`,
+          hourlyRate: freelancer.hourlyRate || Math.floor(Math.random() * 50) + 30,
+          rating: freelancer.rating || (Math.random() * 2 + 3).toFixed(1),
+          projects: freelancer.completedProjects || Math.floor(Math.random() * 5) + 1,
+          freelancerLevel: freelancer.freelancerLevel || ['beginner', 'intermediate', 'experienced'][Math.floor(Math.random() * 3)],
+          workExperience: freelancer.workExperience || []
+        }));
         
         setFreelancers(processedData);
         setFilteredFreelancers(processedData);
@@ -48,8 +50,6 @@ const [sortBy, setSortBy] = useState("rating");
       } catch (err) {
         console.error("Failed to fetch freelancers:", err);
         setError(err.message);
-        setFreelancers([]);
-        setFilteredFreelancers([]);
         setLoading(false);
       }
     };
@@ -57,11 +57,52 @@ const [sortBy, setSortBy] = useState("rating");
     fetchFreelancers();
   }, []);
 
+  // Fetch recommended freelancers
+  const fetchRecommendedFreelancers = async () => {
+    try {
+      setRecommendationsLoading(true);
+      // In a real app, get current user ID from auth context
+      const currentUserId = localStorage.getItem("userID");
+      // Remove any quotes that might be present
+    const cleanUserId = currentUserId.replace(/"/g, '');
+      console.log("This is userID: ",cleanUserId) // Replace with actual user ID
+      const response = await axios.get(`http://127.0.0.1:5000/api/recommended-freelancers/${cleanUserId}`
+      );
+      
+      const processedData = response.data.map(freelancer => ({
+        ...freelancer,
+        name: freelancer.name || `User ${freelancer.userId?.slice(-4) || '0000'}`,
+        bio: freelancer.description || `Recommended ${freelancer.profileTitle || 'freelancer'}`,
+        hourlyRate: freelancer.hourlyRate || Math.floor(Math.random() * 50) + 30,
+        rating: freelancer.rating || (Math.random() * 2 + 3).toFixed(1),
+        projects: freelancer.completedProjects || Math.floor(Math.random() * 5) + 1,
+        freelancerLevel: freelancer.freelancerLevel || ['beginner', 'intermediate', 'experienced'][Math.floor(Math.random() * 3)],
+        workExperience: freelancer.workExperience || []
+      }));
+      
+      setRecommendedFreelancers(processedData);
+      setRecommendationsLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch recommended freelancers:", err);
+      setRecommendationsLoading(false);
+    }
+  };
+
+  // Toggle between all and recommended freelancers
+  const toggleView = () => {
+    if (!showRecommended) {
+      fetchRecommendedFreelancers();
+    }
+    setShowRecommended(!showRecommended);
+    setCurrentPage(1);
+  };
+
   // Get current freelancers for pagination
+  const displayFreelancers = showRecommended ? recommendedFreelancers : filteredFreelancers;
   const indexOfLastFreelancer = currentPage * freelancersPerPage;
   const indexOfFirstFreelancer = indexOfLastFreelancer - freelancersPerPage;
-  const currentFreelancers = filteredFreelancers.slice(indexOfFirstFreelancer, indexOfLastFreelancer);
-  const totalPages = Math.ceil(filteredFreelancers.length / freelancersPerPage);
+  const currentFreelancers = displayFreelancers.slice(indexOfFirstFreelancer, indexOfLastFreelancer);
+  const totalPages = Math.ceil(displayFreelancers.length / freelancersPerPage);
 
   // All available skills from freelancers
   const allSkills = Array.from(new Set(
@@ -86,9 +127,7 @@ const [sortBy, setSortBy] = useState("rating");
         (f.name?.toLowerCase().includes(query)) ||
         (f.profileTitle?.toLowerCase().includes(query)) ||
         (Array.isArray(f.skills) && f.skills.some(skill => 
-          typeof skill === 'string' && skill.toLowerCase().includes(query))) ||
-        (Array.isArray(f.specialties) && f.specialties.some(specialty => 
-          typeof specialty === 'string' && specialty.toLowerCase().includes(query)))
+          typeof skill === 'string' && skill.toLowerCase().includes(query)))
       );
     }
 
@@ -101,12 +140,12 @@ const [sortBy, setSortBy] = useState("rating");
     }
 
     // Price range filter
-  if (rateRange[0] !== 20 || rateRange[1] !== 100) {
-    result = result.filter(f => {
-      const rate = f.hourlyRate || 0;
-      return rate >= rateRange[0] && rate <= rateRange[1];
-    });
-  }
+    if (rateRange[0] !== 20 || rateRange[1] !== 100) {
+      result = result.filter(f => {
+        const rate = f.hourlyRate || 0;
+        return rate >= rateRange[0] && rate <= rateRange[1];
+      });
+    }
 
     // Experience level filter
     if (experienceLevel) {
@@ -115,7 +154,6 @@ const [sortBy, setSortBy] = useState("rating");
         if (experienceLevel === "mid" && f.freelancerLevel === "intermediate") return true;
         if (experienceLevel === "senior" && f.freelancerLevel === "experienced") return true;
         
-        // Alternative check based on work experience if freelancerLevel is not sufficient
         if (!Array.isArray(f.workExperience) || f.workExperience.length === 0) return false;
         
         const yearsOfExperience = calculateTotalYearsExperience(f.workExperience);
@@ -128,46 +166,34 @@ const [sortBy, setSortBy] = useState("rating");
       });
     }
 
-    // Availability filter - assuming we don't have this data, so this is just a placeholder
+    // Availability filter
     if (availability) {
-      // This would filter based on availability if we had that data
-      // For now, let's assume all freelancers are available
+      // Placeholder for availability filtering
     }
 
     // Apply sorting
-  if (sortBy === "rating") {
-    result.sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0));
-  } else if (sortBy === "rate-low") {
-    result.sort((a, b) => (a.hourlyRate || 0) - (b.hourlyRate || 0));
-  } else if (sortBy === "rate-high") {
-    result.sort((a, b) => (b.hourlyRate || 0) - (a.hourlyRate || 0));
-  } else if (sortBy === "experience") {
-    result.sort((a, b) => {
-      const aExp = Array.isArray(a.workExperience) ? calculateTotalYearsExperience(a.workExperience) : 0;
-      const bExp = Array.isArray(b.workExperience) ? calculateTotalYearsExperience(b.workExperience) : 0;
-      return bExp - aExp;
-    });
-  }
+    if (sortBy === "rating") {
+      result.sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0));
+    } else if (sortBy === "rate-low") {
+      result.sort((a, b) => (a.hourlyRate || 0) - (b.hourlyRate || 0));
+    } else if (sortBy === "rate-high") {
+      result.sort((a, b) => (b.hourlyRate || 0) - (a.hourlyRate || 0));
+    } else if (sortBy === "experience") {
+      result.sort((a, b) => {
+        const aExp = Array.isArray(a.workExperience) ? calculateTotalYearsExperience(a.workExperience) : 0;
+        const bExp = Array.isArray(b.workExperience) ? calculateTotalYearsExperience(b.workExperience) : 0;
+        return bExp - aExp;
+      });
+    }
 
     setFilteredFreelancers(result);
     setCurrentPage(1);
   }, [searchQuery, selectedSkills, experienceLevel, availability, freelancers, loading, rateRange, sortBy]);
 
-  // Calculate years of experience for a freelancer
-  const calculateExperience = (workExperience) => {
-    if (!Array.isArray(workExperience) || workExperience.length === 0) return "0 years";
-    
-    const totalYears = calculateTotalYearsExperience(workExperience);
-    
-    return `${totalYears} ${totalYears === 1 ? 'year' : 'years'}`;
-  };
-  
-  // Calculate total years of experience
+  // Helper functions
   const calculateTotalYearsExperience = (workExperience) => {
     if (!Array.isArray(workExperience) || workExperience.length === 0) return 0;
-    
     const currentYear = new Date().getFullYear();
-    
     return workExperience.reduce((total, exp) => {
       const startYear = exp.startDate?.year || 0;
       const endYear = exp.currentlyWorking 
@@ -177,32 +203,29 @@ const [sortBy, setSortBy] = useState("rating");
     }, 0);
   };
 
-  // Format rate for display
-  const formatRate = (value) => {
-    return `$${value}/hr`;
+  const calculateExperience = (workExperience) => {
+    const totalYears = calculateTotalYearsExperience(workExperience);
+    return `${totalYears} ${totalYears === 1 ? 'year' : 'years'}`;
   };
 
-  // Toggle bookmark
-  const toggleBookmark = (id) => {
-    console.log("Bookmark toggled for freelancer:", id);
-  };
+  const formatRate = (value) => `₹${value}/hr`;
 
-  // Toggle skill selection
   const toggleSkill = (skill) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter(s => s !== skill));
-    } else {
-      setSelectedSkills([...selectedSkills, skill]);
-    }
+    setSelectedSkills(prev => 
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+    );
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedSkills([]);
     setRateRange([20, 100]);
     setExperienceLevel("");
     setAvailability("");
+  };
+
+  const toggleBookmark = (id) => {
+    console.log("Bookmark toggled for freelancer:", id);
   };
 
   if (loading) {
@@ -456,32 +479,63 @@ const [sortBy, setSortBy] = useState("rating");
           <div className="lg:col-span-3 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">
-                {filteredFreelancers.length} {filteredFreelancers.length === 1 ? "Freelancer" : "Freelancers"} Found
+                {displayFreelancers.length} {displayFreelancers.length === 1 ? "Freelancer" : "Freelancers"} Found
+                {showRecommended && " (Recommended)"}
               </h2>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-[180px] rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
+              <div className="flex gap-4">
+                <button
+                  onClick={toggleView}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    showRecommended 
+                      ? "bg-[#422AD5] text-white" 
+                      : "border border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
-                  <option value="rating">Highest Rating</option>
-                  <option value="rate-low">Rate: Low to High</option>
-                  <option value="rate-high">Rate: High to Low</option>
-                  <option value="experience">Most Experience</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  {showRecommended ? "Show All" : "Show Recommended"}
+                </button>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-[180px] rounded-md border border-gray-300 py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#422AD5] focus:border-transparent appearance-none"
+                  >
+                    <option value="rating">Highest Rating</option>
+                    <option value="rate-low">Rate: Low to High</option>
+                    <option value="rate-high">Rate: High to Low</option>
+                    <option value="experience">Most Experience</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {currentFreelancers.length === 0 ? (
+            {recommendationsLoading && showRecommended ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#422AD5]"></div>
+              </div>
+            ) : currentFreelancers.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-center justify-center p-8 text-center">
                 <div className="rounded-full bg-gray-100 p-3 mb-4">
                   <Search className="h-6 w-6 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">No freelancers found</h3>
-                <p className="text-gray-500 mb-4">Try adjusting your search or filter criteria</p>
+                <h3 className="text-lg font-medium mb-2">
+                  {showRecommended ? "No recommended freelancers found" : "No freelancers found"}
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {showRecommended 
+                    ? "We couldn't find any recommendations based on your profile" 
+                    : "Try adjusting your search or filter criteria"}
+                </p>
+                {showRecommended && (
+                  <button
+                    className="rounded-md border border-gray-300 py-2 px-4 text-sm font-medium hover:bg-gray-50 mb-2"
+                    onClick={toggleView}
+                  >
+                    Show All Freelancers
+                  </button>
+                )}
                 <button
                   className="rounded-md border border-gray-300 py-2 px-4 text-sm font-medium hover:bg-gray-50"
                   onClick={clearFilters}
@@ -506,7 +560,7 @@ const [sortBy, setSortBy] = useState("rating");
                           />
                           <div>
                             <h3 className="text-xl font-semibold hover:text-[#422AD5] transition-colors">
-                              {freelancer.name || `User ${freelancer.userId.slice(-4)}`}
+                              {freelancer.name || `User ${freelancer.userId?.slice(-4) || '0000'}`}
                             </h3>
                             <p className="text-gray-600">{freelancer.profileTitle || "Freelancer"}</p>
                             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
@@ -518,6 +572,11 @@ const [sortBy, setSortBy] = useState("rating");
                                 <Clock className="h-3 w-3" />
                                 {calculateExperience(freelancer.workExperience)}
                               </span>
+                              {showRecommended && (
+                                <span className="flex items-center gap-1 bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs">
+                                  Match: {Math.round((freelancer.similarityScore || 0) * 100)}%
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -541,7 +600,7 @@ const [sortBy, setSortBy] = useState("rating");
                       </div>
                     </div>
                     <div className="px-6 pb-3">
-                      <p className="text-gray-500 mb-4">{freelancer.bio || `${freelancer.profileTitle} specializing in ${freelancer.specialties?.join(', ') || freelancer.category}`}</p>
+                      <p className="text-gray-500 mb-4">{freelancer.bio}</p>
                       <div className="flex flex-wrap gap-1.5 mb-4">
                         {Array.isArray(freelancer.skills) && freelancer.skills.map((skill, index) => (
                           <span
@@ -551,14 +610,6 @@ const [sortBy, setSortBy] = useState("rating");
                             {skill}
                           </span>
                         ))}
-                        {Array.isArray(freelancer.specialties) && freelancer.specialties.map((specialty, index) => (
-                          <span
-                            key={`specialty-${index}`}
-                            className="rounded-sm border border-gray-300 px-2 py-0.5 text-sm font-normal bg-gray-50"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-center gap-2">
@@ -566,7 +617,7 @@ const [sortBy, setSortBy] = useState("rating");
                             <DollarSign className="h-4 w-4 text-green-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">${freelancer.hourlyRate || "50"}-${freelancer.hourlyRate ? freelancer.hourlyRate + 20 : "70"}/hr</p>
+                            <p className="text-sm font-medium">${freelancer.hourlyRate || "50"}/hr</p>
                             <p className="text-xs text-gray-500">Hourly Rate</p>
                           </div>
                         </div>
@@ -603,7 +654,7 @@ const [sortBy, setSortBy] = useState("rating");
             )}
 
             {/* Pagination */}
-            {filteredFreelancers.length > freelancersPerPage && (
+            {displayFreelancers.length > freelancersPerPage && (
               <div className="flex justify-center mt-8">
                 <div className="flex items-center space-x-2">
                   <button
