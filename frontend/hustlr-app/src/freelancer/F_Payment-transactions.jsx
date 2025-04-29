@@ -136,7 +136,7 @@ function FreelancerPaymentsTransactions() {
                     {new Date(transaction.date).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    ${typeof transaction.amount === 'number' ? transaction.amount.toFixed(2) : transaction.amount}
+                    ₹{typeof transaction.amount === 'number' ? transaction.amount.toFixed(2) : transaction.amount}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span

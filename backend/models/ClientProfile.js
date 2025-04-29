@@ -46,7 +46,7 @@ const ClientProfileSchema = new mongoose.Schema(
     budget: {
       range: { 
         type: String, 
-        enum: ["$0-$500", "$500-$1,000", "$1,000-$5,000", "$5,000-$10,000", "$10,000+", "Varies by project"] 
+        enum: ["₹0-₹500", "₹500-₹1,000", "₹1,000-₹5,000", "₹5,000-₹10,000", "₹10,000+", "Varies by project"] 
       },
       paymentType: { 
         type: String, 

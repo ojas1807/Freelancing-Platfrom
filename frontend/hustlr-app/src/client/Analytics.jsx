@@ -60,7 +60,7 @@ const ClientAnalytics = () => {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
         datasets: [
           {
-            label: "Amount ($)",
+            label: "Amount (₹)",
             data: [4500, 5200, 4800, 6100, 7300, 6800],
             backgroundColor: "rgba(99, 102, 241, 0.2)",
             borderColor: "#6366f1",
@@ -83,7 +83,7 @@ const ClientAnalytics = () => {
     },
     {
       title: "Monthly Spend",
-      value: "$6,800",
+      value: "₹6,800",
       change: "+12%",
       icon: "💰",
       description: "Across 5 freelancers",

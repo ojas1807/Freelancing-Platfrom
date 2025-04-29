@@ -617,7 +617,7 @@ function FindTalentPage() {
                             <DollarSign className="h-4 w-4 text-green-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">${freelancer.hourlyRate || "50"}/hr</p>
+                            <p className="text-sm font-medium">₹{freelancer.hourlyRate || "50"}/hr</p>
                             <p className="text-xs text-gray-500">Hourly Rate</p>
                           </div>
                         </div>

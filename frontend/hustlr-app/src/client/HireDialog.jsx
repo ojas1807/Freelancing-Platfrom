@@ -43,7 +43,7 @@ const HireDialog = ({
             <h3 className="font-medium mb-2">Proposal Details</h3>
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="h-4 w-4" />
-              <span>Bid: ${proposal.bidAmount}</span>
+              <span>Bid: ₹{proposal.bidAmount}</span>
             </div>
             <div className="flex items-center gap-2">
               <List className="h-4 w-4" />

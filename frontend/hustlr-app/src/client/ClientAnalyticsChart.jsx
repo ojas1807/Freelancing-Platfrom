@@ -59,9 +59,9 @@ import {
               if (type === 'pie' || type === 'doughnut') {
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                 const percentage = Math.round((value / total) * 100);
-                return `${label}: $${value} (${percentage}%)`;
+                return `${label}: ₹${value} (${percentage}%)`;
               }
-              return `${label}: $${value}`;
+              return `${label}: ₹${value}`;
             },
           },
         },
@@ -81,7 +81,7 @@ import {
           },
           ticks: {
             color: "#9ca3af",
-            callback: (value) => `$${value}`,
+            callback: (value) => `₹${value}`,
           },
         },
       },

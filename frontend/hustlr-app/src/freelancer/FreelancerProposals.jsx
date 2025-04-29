@@ -13,9 +13,9 @@ function FreelancerProposals() {
       project: "E-commerce Website Development",
       client: "TechCorp Inc.",
       date: "May 10, 2025",
-      budget: "$3,500",
+      budget: "₹3,500",
       status: "Submitted",
-      proposalAmount: "$3,200",
+      proposalAmount: "₹3,200",
       timeline: "6 weeks"
     },
     {
@@ -23,9 +23,9 @@ function FreelancerProposals() {
       project: "Mobile App UI/UX Design",
       client: "MobileSolutions LLC",
       date: "May 8, 2025",
-      budget: "$2,800",
+      budget: "₹2,800",
       status: "Under Review",
-      proposalAmount: "$2,500",
+      proposalAmount: "₹2,500",
       timeline: "4 weeks"
     },
     {
@@ -33,9 +33,9 @@ function FreelancerProposals() {
       project: "Content Marketing Strategy",
       client: "Digital Growth Agency",
       date: "May 5, 2025",
-      budget: "$1,500",
+      budget: "₹1,500",
       status: "Interview Stage",
-      proposalAmount: "$1,800",
+      proposalAmount: "₹1,800",
       timeline: "3 weeks"
     }
   ];
@@ -46,9 +46,9 @@ function FreelancerProposals() {
       project: "Logo Design Project",
       client: "StartUp Ventures",
       date: "April 20, 2025",
-      budget: "$500",
+      budget: "₹500",
       status: "Accepted",
-      proposalAmount: "$500",
+      proposalAmount: "₹500",
       timeline: "2 weeks"
     },
     {
@@ -56,9 +56,9 @@ function FreelancerProposals() {
       project: "SEO Optimization",
       client: "Online Retailer",
       date: "April 15, 2025",
-      budget: "$1,200",
+      budget: "₹1,200",
       status: "Rejected",
-      proposalAmount: "$1,000",
+      proposalAmount: "₹1,000",
       timeline: "4 weeks"
     }
   ];
@@ -68,7 +68,7 @@ function FreelancerProposals() {
       id: "JB-001",
       title: "Website Redesign",
       client: "Creative Agency",
-      budget: "$2,000 - $3,000",
+      budget: "₹2,000 - ₹3,000",
       posted: "2 days ago",
       proposals: 12,
       skills: ["UI/UX Design", "React", "Responsive Design"]
@@ -77,7 +77,7 @@ function FreelancerProposals() {
       id: "JB-002",
       title: "Social Media Management",
       client: "Fashion Brand",
-      budget: "$1,500/month",
+      budget: "₹1,500/month",
       posted: "1 day ago",
       proposals: 8,
       skills: ["Social Media", "Content Creation", "Marketing"]
@@ -122,7 +122,7 @@ function FreelancerProposals() {
                   Your Proposed Rate
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">$</span>
+                  <span className="text-sm">₹</span>
                   <input
                     id="proposal-rate"
                     type="number"

@@ -70,7 +70,7 @@ export const ProjectServices = {
           ...project,
           id: project._id || project.id,
           deadline: project.deadline ? new Date(project.deadline).toLocaleDateString() : 'Not set',
-          budget: project.budget ? `$${project.budget.toLocaleString()}` : 'Not specified',
+          budget: project.budget ? `₹${project.budget.toLocaleString()}` : 'Not specified',
           completedDate: project.completedDate ? new Date(project.completedDate).toLocaleDateString() : undefined,
           freelancer: project.freelancer || null
         })) || [];

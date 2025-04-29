@@ -18,9 +18,9 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
     },
     {
       title: "Total Spent",
-      value: "$12,450",
+      value: "₹12,450",
       icon: DollarSign,
-      change: "+$2,100 this month",
+      change: "+₹2,100 this month",
       changeType: "positive",
     },
     {
@@ -57,7 +57,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
     {
       id: 4,
       title: "Payment processed",
-      description: "Your payment of $750 for the SEO project has been processed",
+      description: "Your payment of ₹750 for the SEO project has been processed",
       time: "2 days ago",
       type: "payment",
     },
@@ -71,7 +71,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
       avatar: "/placeholder.svg?height=40&width=40",
       progress: 75,
       deadline: "May 15, 2025",
-      budget: "$3,500",
+      budget: "₹3,500",
     },
     {
       id: 2,
@@ -80,7 +80,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
       avatar: "/placeholder.svg?height=40&width=40",
       progress: 60,
       deadline: "June 2, 2025",
-      budget: "$2,800",
+      budget: "₹2,800",
     },
     {
       id: 3,
@@ -89,7 +89,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
       avatar: "/placeholder.svg?height=40&width=40",
       progress: 40,
       deadline: "May 30, 2025",
-      budget: "$1,500",
+      budget: "₹1,500",
     },
     {
       id: 4,
@@ -98,7 +98,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
       avatar: "/placeholder.svg?height=40&width=40",
       progress: 25,
       deadline: "June 10, 2025",
-      budget: "$800",
+      budget: "₹800",
     },
   ]
 
@@ -148,7 +148,7 @@ import { ArrowUpRight, Bell, Briefcase, CheckCircle, Clock, DollarSign, MessageS
                 <div key={project.id} className="flex flex-col space-y-2 rounded-lg shadow-sm  p-3">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{project.name}</div>
-                    <span className="px-2 py-1 text-xs font-medium rounded-full border">${project.budget}</span>
+                    <span className="px-2 py-1 text-xs font-medium rounded-full border">{project.budget}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex h-6 w-6 shrink-0 overflow-hidden rounded-full">

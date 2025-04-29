@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { ArrowDownUp, Calendar, CreditCard, Download, Filter, Plus, Search } from "lucide-react";
 import PropTypes from "prop-types";
-import  useAuth from "../hooks/useAuth.jsx"; // Assuming you have a custom hook for authentication
+import useAuth from "../hooks/useAuth.jsx"; // Assuming you have a custom hook for authentication
 
-function PaymentsTransactions() {
+// Define the component with a named export
+export default function PaymentsTransactions() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [freelancers, setFreelancers] = useState([]);
@@ -205,7 +206,7 @@ function PaymentsTransactions() {
                   <td className="px-4 py-3 text-sm">{transaction.client?.name}</td>
                   <td className="px-4 py-3 text-sm">{transaction.freelancer?.name}</td>
                   <td className="px-4 py-3 text-sm">{new Date(transaction.date).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-sm">$${transaction.amount ? transaction.amount.toFixed(2) : '0.00'}</td>
+                  <td className="px-4 py-3 text-sm">₹{transaction.amount ? transaction.amount.toFixed(2) : '0.00'}</td>
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -320,7 +321,7 @@ function PaymentsTransactions() {
               </div>
               <div className="space-y-2">
                 <label htmlFor="amount" className="text-sm font-medium">
-                  Amount ($)
+                  Amount (₹)
                 </label>
                 <input
                   type="number"
@@ -369,5 +370,3 @@ function PaymentsTransactions() {
     </div>
   );
 }
-
-export default PaymentsTransactions;

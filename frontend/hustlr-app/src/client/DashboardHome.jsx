@@ -44,9 +44,9 @@ function DashboardHome() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="card-title text-base font-medium">Total Spent</h2>
-                  <p className="text-3xl font-bold mt-2">$12,450</p>
+                  <p className="text-3xl font-bold mt-2">₹12,450</p>
                   <p className="text-xs text-success mt-1 flex items-center">
-                    +$2,100 this month <ArrowUpRight size={12} className="ml-1" />
+                    +₹2,100 this month <ArrowUpRight size={12} className="ml-1" />
                   </p>
                 </div>
                 <div className="bg-base-200 p-2 rounded-md">
@@ -90,7 +90,7 @@ function DashboardHome() {
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">E-commerce Website Redesign</h3>
-                      <span className="font-bold">$3,500</span>
+                      <span className="font-bold">3,500</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="avatar">
@@ -112,7 +112,7 @@ function DashboardHome() {
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">Mobile App UI Design</h3>
-                      <span className="font-bold">$2,800</span>
+                      <span className="font-bold">₹2,800</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="avatar">
@@ -134,7 +134,7 @@ function DashboardHome() {
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">SEO Optimization</h3>
-                      <span className="font-bold">$1,500</span>
+                      <span className="font-bold">₹1,500</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="avatar">
@@ -216,7 +216,7 @@ function DashboardHome() {
                     <div>
                       <h3 className="font-medium">Payment processed</h3>
                       <p className="text-sm text-base-content/70">
-                        Your payment of $750 for the SEO project has been processed
+                        Your payment of ₹750 for the SEO project has been processed
                       </p>
                       <p className="text-xs text-base-content/50 mt-1">2 days ago</p>
                     </div>

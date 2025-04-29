@@ -56,7 +56,7 @@ function FindWorkPage() {
         title: job.title,
         description: job.description,
         skills: job.skills.join(", "),
-        budget: `$${job.budget.min?.toLocaleString() || "0"} - $${
+        budget: `₹${job.budget.min?.toLocaleString() || "0"} - ₹${
           job.budget.max?.toLocaleString() || "0"
         }`,
         duration: job.duration,
@@ -194,7 +194,7 @@ function FindWorkPage() {
                       Your Bid
                     </label>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">$</span>
+                      <span className="text-sm">₹</span>
                       <input
                         id="proposal-bid"
                         type="number"
@@ -439,7 +439,7 @@ function FindWorkPage() {
 
   // Format budget for display in slider
   const formatBudget = (value) => {
-    return `$${value.toLocaleString()}`;
+    return `₹${value.toLocaleString()}`;
   };
 
   // Extract min and max budget from job

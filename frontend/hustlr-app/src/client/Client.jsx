@@ -1,12 +1,12 @@
-import {  Route, Routes } from "react-router-dom";
-import Dashboard_Layout  from "./Dashboard_Layout.jsx";
+import { Route, Routes } from "react-router-dom";
+import Dashboard_Layout from "./Dashboard_Layout.jsx";
 // import ProjectManagement from "./ProjectManagement";
-import MessagingSystem from "./MessagingSystem";
-import PaymentsTransactions from "./Payment-transactions";
-import AccountSettings from "./AccountSettings";
+import MessagingSystem from "./MessagingSystem.jsx";
+import PaymentsTransactions from "./Payment-transactions.jsx";
+import AccountSettings from "./AccountSettings.jsx";
 import DashboardOverview from "./Dashboard_Overview.jsx";
 import Analytics from "./Analytics.jsx";
-import C_ProjectManagement from "./ProjectManagement";
+import C_ProjectManagement from "./ProjectManagement.jsx";
 
  function Client() {
   return (

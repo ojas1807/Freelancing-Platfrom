@@ -173,7 +173,7 @@ export const getFreelancerProjects = async (req, res) => {
         month: 'long', 
         day: 'numeric' 
       }),
-      budget: `$${project.budget.toLocaleString()}`,
+      budget: `₹${project.budget.toLocaleString()}`,
       status: project.status === "New" ? "New" : 
               project.status === "Resolved" ? "Under Review" : "In Progress"
     }));
@@ -189,7 +189,7 @@ export const getFreelancerProjects = async (req, res) => {
         month: 'long', 
         day: 'numeric' 
       }),
-      budget: `$${project.budget.toLocaleString()}`,
+      budget: `₹${project.budget.toLocaleString()}`,
       rating: project.rating || 0
     }));
     
@@ -552,7 +552,7 @@ export const getAvailableJobs = async (req, res) => {
       name: job.name,
       description: job.description,
       proposals: job.proposals.length,
-      budget: `$${job.budget.min.toLocaleString()}-$${job.budget.max.toLocaleString()}`,
+      budget: `₹${job.budget.min.toLocaleString()}-₹${job.budget.max.toLocaleString()}`,
       deadline: new Date(job.deadline).toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'long', 
