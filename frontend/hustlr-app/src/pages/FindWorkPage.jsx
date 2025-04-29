@@ -11,8 +11,9 @@ import {
   CheckCircle,
 } from "lucide-react";
 import PropTypes from "prop-types";
-import {JobServices} from "../services/projectServices"; // Import your job services
+import { JobServices } from "../services/projectServices"; // Import your job services
 import Breadcrumb from "../Breadcrumb";
+import axios from "axios";
 
 function FindWorkPage() {
   // State for jobs and filtered jobs
@@ -28,6 +29,61 @@ function FindWorkPage() {
     error: null,
   });
   const [appliedJobIds, setAppliedJobIds] = useState([]);
+
+  // New state variables for recommended jobs
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+  const [showRecommended, setShowRecommended] = useState(false);
+
+  // New function to fetch recommended jobs from Flask endpoint
+  const fetchRecommendedJobs = async () => {
+    try {
+      setRecommendationsLoading(true);
+      // const currentUserId = localStorage.getItem('userId') || '680cef2845ec9584e48e7014';
+      const currentUserId = localStorage.getItem("userID");
+      // Remove any quotes that might be present
+      const cleanUserId = currentUserId.replace(/"/g, "");
+      console.log("This is userID: ", cleanUserId);
+      const response = await axios.get(
+        `http://127.0.0.1:5000/api/recommended-jobs/${cleanUserId}`
+      );
+
+      // Transform the Flask API response to match your existing job format
+      const processedJobs = response.data.map((job) => ({
+        id: job._id,
+        _id: job._id,
+        name: job.title,
+        title: job.title,
+        description: job.description,
+        skills: job.skills.join(", "),
+        budget: `$${job.budget.min?.toLocaleString() || "0"} - $${
+          job.budget.max?.toLocaleString() || "0"
+        }`,
+        duration: job.duration,
+        posted: new Date(job.createdAt || new Date()).toLocaleDateString(),
+        deadline: job.duration,
+        proposals: job.proposals || 0,
+        similarityScore: job.similarityScore,
+        client: job.client || {},
+      }));
+
+      setRecommendedJobs(processedJobs);
+      setRecommendationsLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch recommended jobs:", err);
+      setRecommendationsLoading(false);
+      setError(`Failed to load recommendations: ${err.message}`);
+    }
+  };
+
+  // Toggle between all and recommended jobs
+  const toggleView = () => {
+    if (!showRecommended) {
+      fetchRecommendedJobs();
+    }
+    setShowRecommended(!showRecommended);
+    setCurrentPage(1);
+  };
 
   // Handle job application submission
   const handleApplyForJob = async (applicationData) => {
@@ -46,7 +102,7 @@ function FindWorkPage() {
       });
 
       // Track the applied job ID
-    setAppliedJobIds(prev => [...prev, selectedJob.id]);
+      setAppliedJobIds((prev) => [...prev, selectedJob.id]);
 
       setApplicationStatus({
         submitting: false,
@@ -232,7 +288,6 @@ function FindWorkPage() {
     job: PropTypes.object,
   };
 
-
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -251,7 +306,6 @@ function FindWorkPage() {
         setJobs(jobsData || []);
         setFilteredJobs(jobsData || []);
         setLoading(false);
-        
       } catch (err) {
         console.error("Error fetching jobs:", err);
         setError(err.message || "Failed to load jobs");
@@ -263,6 +317,7 @@ function FindWorkPage() {
   }, []);
 
   // Get current jobs for the current page
+  const displayJobs = showRecommended ? recommendedJobs : filteredJobs;
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
@@ -271,16 +326,18 @@ function FindWorkPage() {
 
   // Extract all unique skills from jobs
   const allSkills = Array.from(
-    new Set(jobs.flatMap(job => job.skills.split(',').map(skill => skill.trim())))
+    new Set(
+      jobs.flatMap((job) => job.skills.split(",").map((skill) => skill.trim()))
+    )
   ).sort();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
   // Apply filters
   useEffect(() => {
-    let result = [...jobs];
+    let result = showRecommended ? [...recommendedJobs] : [...jobs];
     // console.log("Jobs:", jobs);
     // console.log("Filtered Jobs:", filteredJobs);
 
@@ -289,9 +346,11 @@ function FindWorkPage() {
       const query = searchQuery.trim().toLowerCase();
       result = result.filter((job) => {
         const jobName = job.name ? job.name.toLowerCase() : "";
-        const jobDescription = job.description ? job.description.toLowerCase() : "";
+        const jobDescription = job.description
+          ? job.description.toLowerCase()
+          : "";
         const jobSkills = job.skills ? job.skills.toLowerCase() : "";
-    
+
         return (
           jobName.includes(query) ||
           jobDescription.includes(query) ||
@@ -303,47 +362,59 @@ function FindWorkPage() {
     // Skills filter
     if (selectedSkills.length > 0) {
       result = result.filter((job) =>
-        selectedSkills.some(skill => 
-          job.skills.split(',').map(s => s.trim()).includes(skill)
+        selectedSkills.some((skill) =>
+          job.skills
+            .split(",")
+            .map((s) => s.trim())
+            .includes(skill)
         )
       );
     }
 
     // Budget range filter
-  result = result.filter((job) => {
-    const jobBudget = job.budget.replace(/[^\d,-]/g, ""); // Remove non-digit characters except comma and dash
-    const [minStr, maxStr] = jobBudget.split("-").map((str) => str.trim());
+    result = result.filter((job) => {
+      const jobBudget = job.budget.replace(/[^\d,-]/g, ""); // Remove non-digit characters except comma and dash
+      const [minStr, maxStr] = jobBudget.split("-").map((str) => str.trim());
 
-    const min = parseInt(minStr.replace(/,/g, "")) || 0;
-    const max = parseInt(maxStr?.replace(/,/g, "") || min); // Handle cases where there's no max
+      const min = parseInt(minStr.replace(/,/g, "")) || 0;
+      const max = parseInt(maxStr?.replace(/,/g, "") || min); // Handle cases where there's no max
 
-    return (
-      (min >= budgetRange[0] && min <= budgetRange[1]) ||
-      (max >= budgetRange[0] && max <= budgetRange[1])
-    );
-  });
+      return (
+        (min >= budgetRange[0] && min <= budgetRange[1]) ||
+        (max >= budgetRange[0] && max <= budgetRange[1])
+      );
+    });
 
     // Sorting logic
-  if (sortBy === "newest") {
-    result.sort((a, b) => new Date(b.posted) - new Date(a.posted));
-  } else if (sortBy === "oldest") {
-    result.sort((a, b) => new Date(a.posted) - new Date(b.posted));
-  } else if (sortBy === "budget-high") {
-    result.sort((a, b) => {
-      const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
-      const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
-      return budgetB - budgetA;
-    });
-  } else if (sortBy === "budget-low") {
-    result.sort((a, b) => {
-      const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
-      const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
-      return budgetA - budgetB;
-    });
-  }
+    if (sortBy === "newest") {
+      result.sort((a, b) => new Date(b.posted) - new Date(a.posted));
+    } else if (sortBy === "oldest") {
+      result.sort((a, b) => new Date(a.posted) - new Date(b.posted));
+    } else if (sortBy === "budget-high") {
+      result.sort((a, b) => {
+        const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
+        const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
+        return budgetB - budgetA;
+      });
+    } else if (sortBy === "budget-low") {
+      result.sort((a, b) => {
+        const budgetA = parseInt(a.budget.replace(/[^\d]/g, "")) || 0;
+        const budgetB = parseInt(b.budget.replace(/[^\d]/g, "")) || 0;
+        return budgetA - budgetB;
+      });
+    }
 
     setFilteredJobs(result);
-  }, [searchQuery, selectedSkills, budgetRange, jobs, sortBy, currentPage]);
+  }, [
+    searchQuery,
+    selectedSkills,
+    budgetRange,
+    jobs,
+    sortBy,
+    currentPage,
+    showRecommended,
+    recommendedJobs,
+  ]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -373,10 +444,13 @@ function FindWorkPage() {
 
   // Extract min and max budget from job
   const getBudgetValues = (budgetStr) => {
-    const nums = budgetStr.replace(/[^\d,-]/g, "").split('-').map(num => parseInt(num.replace(/,/g, "")));
+    const nums = budgetStr
+      .replace(/[^\d,-]/g, "")
+      .split("-")
+      .map((num) => parseInt(num.replace(/,/g, "")));
     return {
       min: nums[0] || 0,
-      max: nums[1] || nums[0] || 0
+      max: nums[1] || nums[0] || 0,
     };
   };
 
@@ -420,6 +494,20 @@ function FindWorkPage() {
           <p className="text-gray-500">
             Browse and apply to the latest freelance opportunities
           </p>
+        </div>
+
+        {/* Add this toggle button right here */}
+        <div className="flex justify-end">
+          <button
+            onClick={toggleView}
+            className={`flex items-center gap-2 rounded-md py-2 px-4 text-sm font-medium ${
+              showRecommended
+                ? "bg-[#422AD5] text-white hover:bg-[#3620b1]"
+                : "border border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            {showRecommended ? "Show All Jobs" : "Show Recommended Jobs"}
+          </button>
         </div>
 
         {/* Search and Filter Bar */}
@@ -683,9 +771,11 @@ function FindWorkPage() {
           <div className="lg:col-span-3 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">
-                {filteredJobs.length}{" "}
-                {filteredJobs.length === 1 ? "Job" : "Jobs"} Found
+                {displayJobs.length} {displayJobs.length === 1 ? "Job" : "Jobs"}{" "}
+                Found
+                {showRecommended && " (Recommended)"}
               </h2>
+
               <div className="relative">
                 <select
                   value={sortBy}
@@ -703,15 +793,33 @@ function FindWorkPage() {
               </div>
             </div>
 
-            {filteredJobs.length === 0 ? (
+            {recommendationsLoading && showRecommended ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#422AD5]"></div>
+              </div>
+            ) : displayJobs.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-center justify-center p-8 text-center">
                 <div className="rounded-full bg-gray-100 p-3 mb-4">
                   <Search className="h-6 w-6 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">No jobs found</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  {showRecommended
+                    ? "No recommended jobs found"
+                    : "No jobs found"}
+                </h3>
                 <p className="text-gray-500 mb-4">
-                  Try adjusting your search or filter criteria
+                  {showRecommended
+                    ? "We couldn't find any recommendations based on your profile"
+                    : "Try adjusting your search or filter criteria"}
                 </p>
+                {showRecommended && (
+                  <button
+                    className="rounded-md border border-gray-300 py-2 px-4 text-sm font-medium hover:bg-gray-50 mb-2"
+                    onClick={toggleView}
+                  >
+                    Show All Jobs
+                  </button>
+                )}
                 <button
                   className="rounded-md border border-gray-300 py-2 px-4 text-sm font-medium hover:bg-gray-50"
                   onClick={clearFilters}
@@ -723,12 +831,19 @@ function FindWorkPage() {
               <div className="space-y-4">
                 {currentJobs.map((job) => {
                   const budgetValues = getBudgetValues(job.budget);
-                  
+
                   return (
                     <div
                       key={job.id}
                       className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                     >
+                      {showRecommended && job.similarityScore && (
+                        <div className="px-6 pt-4">
+                          <span className="inline-flex items-center bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs">
+                            Match: {Math.round(job.similarityScore * 100)}%
+                          </span>
+                        </div>
+                      )}
                       <div className="p-6 pb-3">
                         <div className="flex justify-between items-start">
                           <div>
@@ -770,7 +885,7 @@ function FindWorkPage() {
                           {job.description}
                         </p>
                         <div className="flex flex-wrap gap-1.5 mb-4">
-                          {job.skills.split(',').map((skill, index) => (
+                          {job.skills.split(",").map((skill, index) => (
                             <span
                               key={index}
                               className="rounded-sm border border-gray-300 px-2 py-0.5 text-sm font-normal bg-gray-50"
@@ -785,7 +900,9 @@ function FindWorkPage() {
                               <DollarSign className="h-4 w-4 text-green-600" />
                             </div>
                             <div>
-                              <p className="text-sm font-medium">{job.budget}</p>
+                              <p className="text-sm font-medium">
+                                {job.budget}
+                              </p>
                               <p className="text-xs text-gray-500">Budget</p>
                             </div>
                           </div>
@@ -806,48 +923,54 @@ function FindWorkPage() {
                       <div className="flex justify-between py-3 px-6">
                         <div className="text-sm text-gray-500">
                           <span className="font-medium text-gray-900">
-                          {job.proposals || job.proposals === 0 ? job.proposals : "0"}
+                            {job.proposals || job.proposals === 0
+                              ? job.proposals
+                              : "0"}
                           </span>{" "}
                           proposals so far
                         </div>
-                        <button 
-  className={`py-1 px-3 rounded-md text-sm focus:outline-none ${
-    job.hasApplied || appliedJobIds.includes(job.id)
-      ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-      : "bg-primary text-white hover:bg-primary/90"
-  }`}
-  onClick={() => {
-    if (!job.hasApplied && !appliedJobIds.includes(job.id)) {
-      setSelectedJob(job);
-      setShowApplicationDialog(true);
-    }
-  }}
-  disabled={job.hasApplied || appliedJobIds.includes(job.id)}
->
-  {job.hasApplied || appliedJobIds.includes(job.id) ? 'Applied' : 'Apply Now'}
-</button>
+                        <button
+                          className={`py-1 px-3 rounded-md text-sm focus:outline-none ${
+                            job.hasApplied || appliedJobIds.includes(job.id)
+                              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                              : "bg-primary text-white hover:bg-primary/90"
+                          }`}
+                          onClick={() => {
+                            if (
+                              !job.hasApplied &&
+                              !appliedJobIds.includes(job.id)
+                            ) {
+                              setSelectedJob(job);
+                              setShowApplicationDialog(true);
+                            }
+                          }}
+                          disabled={
+                            job.hasApplied || appliedJobIds.includes(job.id)
+                          }
+                        >
+                          {job.hasApplied || appliedJobIds.includes(job.id)
+                            ? "Applied"
+                            : "Apply Now"}
+                        </button>
                       </div>
                     </div>
-                    
                   );
-                  
                 })}
-
               </div>
             )}
             {/* Dialog for applying to a job */}
-      <ApplicationDialog
-        isOpen={showApplicationDialog}
-        onClose={() => {
-          setShowApplicationDialog(false);
-          setApplicationStatus({
-            submitting: false,
-            success: false,
-            error: null,
-          });
-        }}
-        job={selectedJob}
-      />
+            <ApplicationDialog
+              isOpen={showApplicationDialog}
+              onClose={() => {
+                setShowApplicationDialog(false);
+                setApplicationStatus({
+                  submitting: false,
+                  success: false,
+                  error: null,
+                });
+              }}
+              job={selectedJob}
+            />
 
             {/* Pagination */}
             {filteredJobs.length > jobsPerPage && (
